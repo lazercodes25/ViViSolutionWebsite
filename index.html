@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Điện tử Đà Nẵng - Linh kiện điện tử</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-top">
+      <div class="brand" onclick="location.href='index.html'">
+        <i class="fa-solid fa-microchip"></i>
+        <div>
+          <h1>ĐIỆN TỬ ĐÀ NẴNG</h1>
+          <small>Linh kiện điện tử & công nghệ</small>
+        </div>
+      </div>
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Tìm sản phẩm...">
+        <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+<div class="header-actions">
+        <button class="icon-btn" id="authBtn"><i class="fa-solid fa-user"></i> <span id="authLabel">Đăng nhập</span></button>
+        <button class="icon-btn cart-btn" id="cartBtn">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span class="cart-count" id="cartQty">0</span>
+        </button>
+        <span class="admin-link"><a class="icon-btn" href="admin.html"><i class="fa-solid fa-sliders"></i> Quản trị</a></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Category bar -->
+  <div class="cat-bar" id="catBar"></div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h2>🛒 Linh kiện điện tử chất lượng cao</h2>
+    <p>Vi xử lý, bo mạch, cảm biến, linh kiện thụ động & nhiều hơn nữa tại Đà Nẵng</p>
+    <div class="stats">
+      <div class="stat"><b id="statCount">0</b><span>Sản phẩm</span></div>
+      <div class="stat"><b id="statStock">0</b><span>Sản phẩm tồn kho</span></div>
+      <div class="stat"><b id="statValue">0đ</b><span>Tổng giá trị kho</span></div>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <div class="container">
+    <h2 class="section-title"><i class="fa-solid fa-box-open"></i> Sản phẩm nổi bật</h2>
+    <div class="product-grid" id="productGrid"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p><b>Điện tử Đà Nẵng</b> — 123 Trần Hưng Đạo, Q. Hải Châu, TP. Đà Nẵng</p>
+    <p>📞 0905 123 456 &nbsp;|&nbsp; ✉️ lienhe@dientudanang.vn</p>
+  </footer>
+
+  <!-- Product detail modal -->
+  <div class="modal-overlay" id="detailModal">
+    <div class="modal" id="modalBody"></div>
+  </div>
+
+  <!-- Cart drawer -->
+  <div class="cart-drawer" id="cartDrawer">
+    <header>
+      <h3>🛒 Giỏ hàng</h3>
+      <button class="modal-close" id="cartClose">✕</button>
+    </header>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="cart-total"><span>Tổng tiền:</span><span id="cartTotal">0đ</span></div>
+      <button class="btn btn-primary" id="checkoutBtn" style="width:100%">Thanh toán</button>
+    </div>
+  </div>
+
+<!-- Auth modal -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal">
+      <button class="modal-close" id="authClose">✕</button>
+      <h2 id="authTitle">Đăng nhập</h2>
+      <div class="auth-tabs">
+        <button id="tabLogin" class="active" onclick="switchAuth('login')">Đăng nhập</button>
+        <button id="tabRegister" onclick="switchAuth('register')">Đăng ký</button>
+      </div>
+<div class="auth-form" id="authForm">
+        <div class="reg-only">
+          <label>Họ & tên</label>
+          <input type="text" id="a-name" placeholder="Nguyễn Văn A">
+        </div>
+        <div>
+          <label>Tên đăng nhập</label>
+          <input type="text" id="a-username" placeholder="username">
+        </div>
+        <div class="reg-only">
+          <label>Số điện thoại</label>
+          <input type="text" id="a-phone" placeholder="0905 123 456">
+        </div>
+        <div>
+          <label>Mật khẩu</label>
+          <input type="password" id="a-password" placeholder="••••••••">
+        </div>
+        <div class="auth-msg" id="authMsg"></div>
+        <button class="btn btn-primary" id="authSubmit" style="width:100%">Đăng nhập</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
+

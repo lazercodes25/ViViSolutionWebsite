@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản trị - Điện tử Đà Nẵng</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- Admin header -->
+  <header class="admin-header">
+    <div class="brand">
+      <i class="fa-solid fa-gear"></i>
+      <div>
+        <h1>QUẢN TRỊ — ĐIỆN TỬ ĐÀ NẴNG</h1>
+      </div>
+    </div>
+    <div class="group" style="display:flex;gap:.5rem;align-items:center">
+      <span id="adminUserLabel" style="font-size:.9rem"></span>
+      <a href="index.html"><i class="fa-solid fa-store"></i> Cửa hàng</a>
+      <a href="javascript:void(0)" id="logoutBtn" style="display:none"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card"><i class="fa-solid fa-box"></i><div><b id="statCount">0</b><span>Sản phẩm</span></div></div>
+      <div class="stat-card"><i class="fa-solid fa-warehouse"></i><div><b id="statStock">0</b><span>Mặt hàng tồn kho</span></div></div>
+      <div class="stat-card"><i class="fa-solid fa-coins"></i><div><b id="statValue">0đ</b><span>Tổng giá trị kho</span></div></div>
+      <div class="stat-card danger"><i class="fa-solid fa-triangle-exclamation"></i><div><b id="statLow">0</b><span>Hàng sắp hết</span></div></div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="group">
+        <div class="search-tool">
+          <input type="text" id="searchInput" placeholder="Tìm sản phẩm...">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <button class="abtn abtn-primary" id="btnAdd"><i class="fa-solid fa-plus"></i> Thêm SP</button>
+        <button class="abtn abtn-ghost" id="btnReset"><i class="fa-solid fa-rotate-left"></i> Mặc định</button>
+      </div>
+<div class="group">
+        <button class="abtn abtn-danger" id="btnOrders"><i class="fa-solid fa-truck"></i> Đơn hàng <span id="orderBadge" style="background:#fff;color:#d32f2f;border-radius:10px;padding:0 .4rem;font-weight:800"></span></button>
+        <button class="abtn abtn-success" id="btnImport"><i class="fa-solid fa-file-import"></i> Nhập CSV/Excel</button>
+        <button class="abtn abtn-accent" id="btnExportXlsx"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
+        <button class="abtn abtn-ghost" id="btnExportCsv"><i class="fa-solid fa-file-csv"></i> Xuất CSV</button>
+      </div>
+    </div>
+
+    <!-- Hint -->
+    <div style="background:#fdf3dc;border:1px solid #f0d8a8;border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;font-size:.88rem;color:#7a5b1e">
+      💡 <b>Mẹo:</b> Nhấp <b>đúp chuột</b> vào ô để sửa trực tiếp (giống Excel). Xuất Excel để sao lưu, nhập file để mở rộng danh sách hàng.
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Mã</th>
+              <th>Tên sản phẩm</th>
+              <th>Danh mục</th>
+              <th>Giá (VNĐ)</th>
+              <th>Tồn kho</th>
+              <th>Đơn vị</th>
+              <th>Trạng thái</th>
+              <th>Ảnh</th>
+              <th>Mô tả</th>
+              <th>Đánh giá</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="add-row-btn" id="addRowBtn"><i class="fa-solid fa-plus"></i> Thêm sản phẩm mới</div>
+    </div>
+  </div>
+
+  <!-- Form modal -->
+  <div class="modal-overlay" id="formModal">
+    <div class="modal">
+      <h2 id="formTitle">Thêm sản phẩm</h2>
+      <form id="productForm" onsubmit="return false">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Tên sản phẩm *</label>
+            <input type="text" id="f-name" placeholder="VD: Arduino Uno">
+          </div>
+          <div class="form-group">
+            <label>Danh mục</label>
+            <select id="f-category"></select>
+          </div>
+          <div class="form-group">
+            <label>Giá (VNĐ)</label>
+            <input type="number" id="f-price" placeholder="100000">
+          </div>
+          <div class="form-group">
+            <label>Tồn kho (số lượng)</label>
+            <input type="number" id="f-stock" placeholder="50">
+          </div>
+          <div class="form-group">
+            <label>Đơn vị</label>
+            <input type="text" id="f-unit" placeholder="cái">
+          </div>
+          <div class="form-group">
+            <label>Đánh giá (1-5)</label>
+            <input type="number" id="f-rating" min="1" max="5" step="0.1" placeholder="4.5">
+          </div>
+          <div class="form-group full">
+            <label>Ảnh (emoji hoặc link URL)</label>
+            <input type="text" id="f-image" placeholder="💡 hoặc https://...">
+          </div>
+          <div class="form-group full">
+            <label>Mô tả</label>
+            <textarea id="f-desc" rows="2" placeholder="Mô tả sản phẩm..."></textarea>
+          </div>
+        </div>
+      </form>
+      <div class="modal-actions">
+        <button class="abtn abtn-ghost" id="btnFormCancel">Hủy</button>
+        <button class="abtn abtn-primary" id="btnFormSave"><i class="fa-solid fa-save"></i> Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import modal -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal">
+      <h2><i class="fa-solid fa-file-import"></i> Nhập danh sách hàng</h2>
+      <p style="font-size:.9rem;color:#6b7688">Chọn file <b>Excel (.xlsx/.xls)</b> hoặc <b>CSV</b>. Các sản phẩm sẽ được thêm vào danh sách hiện tại.</p>
+      <div style="margin:1rem 0">
+        <div class="drop-area" id="dropArea">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <b>Kéo & thả file vào đây</b> hoặc nhấp để chọn file
+        </div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none">
+      </div>
+      <div class="file-hint">
+        <b>Định dạng cột trong file:</b> Mã SP | Tên sản phẩm | Danh mục | Giá (VNĐ) | Tồn kho | Đơn vị | Mô tả | Hình | Đánh giá<br>
+        Có thể xuất file mẫu từ nút "Xuất Excel" rồi chỉnh sửa.
+      </div>
+      <div id="importSummary"></div>
+      <div class="modal-actions">
+        <button class="abtn abtn-ghost" id="btnImportCancel">Hủy</button>
+        <button class="abtn abtn-success" id="btnImportConfirm"><i class="fa-solid fa-check"></i> Xác nhận nhập</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin login modal -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal" style="max-width:420px">
+      <h2><i class="fa-solid fa-lock"></i> Đăng nhập quản trị</h2>
+      <div class="auth-form">
+        <div>
+          <label>Tên đăng nhập</label>
+          <input type="text" id="adm-username" placeholder="admin" autocomplete="off">
+        </div>
+        <div>
+          <label>Mật khẩu</label>
+          <input type="password" id="adm-password" placeholder="••••••••">
+        </div>
+        <div class="auth-msg" id="admMsg"></div>
+        <button class="abtn abtn-primary" id="admLoginBtn" style="width:100%"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
+        <p style="font-size:.8rem;color:#6b7688;text-align:center;margin-top:.5rem">Mặc định: <b>admin</b> / <b>admin123</b></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders modal -->
+  <div class="modal-overlay" id="ordersModal">
+    <div class="modal" style="max-width:760px">
+      <button class="modal-close" id="ordersClose">✕</button>
+      <h2><i class="fa-solid fa-truck"></i> Đơn hàng</h2>
+      <div id="ordersList" style="margin-top:.5rem"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
+

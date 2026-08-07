@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thanh toán - Điện tử Đà Nẵng</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-top">
+      <div class="brand" onclick="location.href='index.html'">
+        <i class="fa-solid fa-microchip"></i>
+        <div>
+          <h1>ĐIỆN TỬ ĐÀ NẴNG</h1>
+          <small>Thanh toán đơn hàng</small>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="location.href='index.html'"><i class="fa-solid fa-arrow-left"></i> Tiếp tục mua</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="checkout-wrap">
+    <h2 style="margin-bottom:1.2rem;color:var(--primary)"><i class="fa-solid fa-credit-card"></i> Thanh toán đơn hàng</h2>
+    <div class="checkout-grid">
+      <!-- Customer info -->
+      <div class="checkout-card">
+        <h3><i class="fa-solid fa-user"></i> Thông tin giao hàng</h3>
+        <div class="ck-form">
+          <div class="full">
+            <label>Họ & tên *</label>
+            <input type="text" id="ck-name" placeholder="Nguyễn Văn A">
+          </div>
+          <div>
+            <label>Số điện thoại *</label>
+            <input type="text" id="ck-phone" placeholder="0905 123 456">
+          </div>
+          <div>
+            <label>Email</label>
+            <input type="email" id="ck-email" placeholder="email@example.com">
+          </div>
+          <div class="full">
+            <label>Địa chỉ giao hàng *</label>
+            <input type="text" id="ck-address" placeholder="Số nhà, đường, quận - TP. Đà Nẵng">
+          </div>
+          <div class="full">
+            <label>Phương thức thanh toán</label>
+            <select id="ck-payment">
+              <option value="cod">Thanh toán khi nhận hàng (COD)</option>
+              <option value="bank">Chuyển khoản ngân hàng</option>
+              <option value="momo">Ví MoMo</option>
+            </select>
+          </div>
+          <div class="full">
+            <label>Lưu ý khi giao hàng</label>
+            <textarea id="ck-note" rows="2" placeholder="Ví dụ: gọi trước khi giao, giao ngoài giờ hành chính..."></textarea>
+          </div>
+        </div>
+      </div>
+
+<!-- Order summary -->
+      <div class="checkout-card">
+        <h3><i class="fa-solid fa-receipt"></i> Đơn hàng của bạn</h3>
+        <div id="guestNotice" style="display:none;background:#fff3e0;border:1px solid #ffcc80;border-radius:8px;padding:.6rem .8rem;margin-bottom:.8rem;font-size:.85rem;color:#7a4f01">
+          👤 <b>Bạn đang đặt hàng như khách</b>. Có thể đặt ngay không cần đăng ký. Đăng ký/thành viên để được giảm thêm 5%!
+        </div>
+        <div class="order-summary">
+          <div class="os-items" id="osItems"></div>
+
+          <div style="margin-top:.5rem">
+            <div class="voucher-box">
+              <input type="text" id="voucherInput" placeholder="Nhập mã giảm giá (VD: DN10)">
+              <button class="btn btn-primary" id="applyVoucherBtn" style="flex:0 0 auto">Áp dụng</button>
+            </div>
+            <div class="voucher-msg" id="voucherMsg"></div>
+          </div>
+
+          <div id="priceBreakdown"></div>
+        </div>
+        <button class="btn btn-accent" id="placeOrderBtn" style="width:100%;margin-top:1rem;flex:none">
+          <i class="fa-solid fa-check"></i> Đặt hàng & thanh toán
+        </button>
+        <p style="font-size:.8rem;color:var(--muted);margin-top:.6rem;text-align:center">
+          🚚 Miễn phí vận chuyển cho đơn hàng từ 500.000đ
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p><b>Điện tử Đà Nẵng</b> — 123 Trần Hưng Đạo, Q. Hải Châu, TP. Đà Nẵng</p>
+    <p>📞 0905 123 456 &nbsp;|&nbsp; ✉️ lienhe@dientudanang.vn</p>
+  </footer>
+
+  <!-- Success modal -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal">
+      <button class="modal-close" onclick="document.getElementById('successModal').classList.remove('show')">✕</button>
+      <div style="text-align:center;padding:1rem">
+        <div style="font-size:4rem">✅</div>
+        <h2>Đặt hàng thành công!</h2>
+        <p id="successMsg" style="color:var(--muted);margin:.8rem 0"></p>
+        <button class="btn btn-primary" onclick="location.href='index.html'" style="width:100%">Quay lại cửa hàng</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>
