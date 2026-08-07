@@ -1,4 +1,4 @@
-/* ===== Điện tử Đà Nẵng - Checkout ===== */
+/* ===== Điện tử E-Solution Đà Nẵng - Checkout ===== */
 
 let appliedVoucher = null; // { discount, name }
 

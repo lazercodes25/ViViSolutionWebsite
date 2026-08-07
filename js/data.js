@@ -1,4 +1,4 @@
-/* ===== Điện tử Đà Nẵng - Data & Excel engine ===== */
+/* ===== Điện tử E-Solution Đà Nẵng - Data & Excel engine ===== */
 
 // Categories
 const CATEGORIES = [

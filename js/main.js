@@ -1,4 +1,4 @@
-/* ===== Điện tử Đà Nẵng - Storefront ===== */
+/* ===== Điện tử E-Solution Đà Nẵng - Storefront ===== */
 
 document.addEventListener("DOMContentLoaded", () => {
   ensureAdmin();

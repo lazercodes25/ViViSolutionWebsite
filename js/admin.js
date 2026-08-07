@@ -1,4 +1,4 @@
-/* ===== Điện tử Đà Nẵng - Admin ===== */
+/* ===== Điện tử E-Solution Đà Nẵng - Admin ===== */
 
 let searchTerm = "";
 let editingId = null;

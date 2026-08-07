@@ -1,4 +1,4 @@
-# TODO — Website Điện tử Đà Nẵng
+# TODO — Website Điện tử E-Solution Đà Nẵng
 
 ## ✅ Hoàn thành
 - [x] Cấu trúc thư mục + giao diện (style.css, admin.css)
@@ -22,6 +22,8 @@
 - [x] **Thêm thông báo "đặt hàng như khách"** trên trang thanh toán cho người chưa đăng nhập
 - [x] **Khởi tạo git repo** + commit toàn bộ để sẵn sàng deploy
 
-## ⬜ Deploy (cần tài khoản cloud)
-- [ ] Deploy lên GitHub Pages / Netlify / Vercel (xem README.md)
+## ✅ Đợt 4 (Đổi tên shop + Deploy)
+- [x] **Đổi tên shop** thành "Điện tử E-Solution Đà Nẵng" trên toàn bộ source (HTML, JS, CSS, README, TODO)
+- [ ] Commit & push thay đổi lên GitHub
+- [ ] Kích hoạt GitHub Pages → website chạy tại https://lazercodes25.github.io/ESolutionWebsite/
 - [ ] Chạy thử trên trình duyệt ở địa phương
