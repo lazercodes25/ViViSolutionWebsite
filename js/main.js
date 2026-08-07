@@ -273,6 +273,11 @@ function updateAuthUI() {
   } else {
     label.textContent = "Đăng nhập";
   }
+  // Chỉ hiện nút "Quản trị" khi đã đăng nhập với tài khoản admin
+  const adminLink = document.getElementById("adminLink");
+  if (adminLink) {
+    adminLink.style.display = isAdmin() ? "" : "none";
+  }
 }
 
 function openAuthModal() {
