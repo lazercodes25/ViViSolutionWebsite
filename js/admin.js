@@ -85,11 +85,14 @@ function renderTable() {
     (p.category || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  tbody.innerHTML = filtered.map(p => {
+tbody.innerHTML = filtered.map(p => {
     const st = stockStatus(p.stock);
-    const imgHtml = p.image && /^https?:\/\//i.test(p.image)
-      ? `<img src="${p.image}" alt="" onerror="this.style.display='none';this.nextSibling.textContent='🔧'" />`
-      : `<span>${p.image || "🔧"}</span>`;
+    const imgs = getProductImages(p);
+    const primary = imgs[0] || "🔧";
+    const imgHtml = looksLikeImage(primary)
+      ? `<img src="${primary}" alt="" onerror="this.style.display='none';this.nextSibling.textContent='🔧'" />`
+      : `<span>${primary}</span>`;
+    const imgCount = imgs.length > 1 ? `<div style="font-size:.68rem;color:var(--muted);margin-top:2px">+${imgs.length - 1}</div>` : "";
     return `
       <tr data-id="${p.id}">
         <td><span class="cell">${p.id}</span></td>
@@ -99,7 +102,7 @@ function renderTable() {
         <td><span class="cell input-stock">${p.stock}</span></td>
         <td><span class="cell" style="min-width:70px">${escapeHtml(p.unit)}</span></td>
         <td><span class="badge ${st.cls}">${st.label}</span></td>
-        <td class="thumb"><span class="cell"><div class="cell thumb-inner">${imgHtml}</div></span></td>
+        <td class="thumb"><span class="cell"><div class="cell thumb-inner">${imgHtml}${imgCount}</div></span></td>
         <td><span class="cell" style="min-width:180px">${escapeHtml(p.desc || "")}</span></td>
         <td><span class="cell" style="min-width:70px">${p.rating}</span></td>
         <td class="actions-cell">
@@ -215,8 +218,29 @@ function bindEvents() {
   document.getElementById("formModal").addEventListener("click", e => {
     if (e.target.id === "formModal") closeFormModal();
   });
-  document.getElementById("btnFormSave").addEventListener("click", saveForm);
+document.getElementById("btnFormSave").addEventListener("click", saveForm);
   document.getElementById("btnFormCancel").addEventListener("click", closeFormModal);
+
+  // Form multi-image upload: click, change, drag & drop, remove
+  const imgDrop = document.getElementById("imgDropArea");
+  const imgInput = document.getElementById("f-image-input");
+  if (imgDrop && imgInput) {
+    imgDrop.addEventListener("click", () => imgInput.click());
+    imgInput.addEventListener("change", e => {
+      addImageFiles(e.target.files);
+      imgInput.value = "";
+    });
+    ["dragover", "dragenter"].forEach(ev => imgDrop.addEventListener(ev, e => { e.preventDefault(); imgDrop.classList.add("drag"); }));
+    ["dragleave", "drop"].forEach(ev => imgDrop.addEventListener(ev, e => { e.preventDefault(); imgDrop.classList.remove("drag"); }));
+    imgDrop.addEventListener("drop", e => {
+      e.preventDefault();
+      addImageFiles(e.dataTransfer.files);
+    });
+    document.getElementById("imgPreview").addEventListener("click", e => {
+      const rm = e.target.closest(".img-remove");
+      if (rm) removeFormImage(Number(rm.dataset.remove));
+    });
+  }
 
   // Import modal
   document.getElementById("importModal").addEventListener("click", e => {
@@ -244,6 +268,9 @@ function fillCategorySelect(sel, selected) {
 }
 
 // ===== Form modal (add/edit) =====
+// Temporary images array for the currently open form (not saved until saveForm).
+let formImages = [];
+
 function openFormModal(id) {
   editingId = null;
   const f = document.getElementById("productForm");
@@ -261,18 +288,75 @@ function openFormModal(id) {
     document.getElementById("f-stock").value = p.stock || "";
     document.getElementById("f-unit").value = p.unit || "cái";
     document.getElementById("f-desc").value = p.desc || "";
-    document.getElementById("f-image").value = p.image || "";
     document.getElementById("f-rating").value = p.rating || "4.5";
     fillCategorySelect(document.getElementById("f-category"), p.category);
     document.getElementById("formTitle").textContent = "Sửa sản phẩm";
+    formImages = getProductImages(p).slice();
   } else {
     document.getElementById("formTitle").textContent = "Thêm sản phẩm mới";
+    formImages = [];
   }
+  renderFormImagePreview();
   document.getElementById("formModal").classList.add("show");
 }
 
 function closeFormModal() {
   document.getElementById("formModal").classList.remove("show");
+  formImages = [];
+}
+
+// Render the image thumbnails in the form (with remove buttons)
+function renderFormImagePreview() {
+  const preview = document.getElementById("imgPreview");
+  if (!formImages.length) {
+    preview.innerHTML = "";
+    preview.classList.remove("filled");
+    return;
+  }
+  preview.classList.add("filled");
+  preview.innerHTML = formImages.map((img, i) => {
+    const isPrimary = i === 0;
+    const content = looksLikeImage(img)
+      ? `<img src="${img}" alt="">`
+      : `<span class="thumb-emoji">${img}</span>`;
+    return `
+      <div class="img-thumb ${isPrimary ? "is-primary" : ""}" data-idx="${i}">
+        ${content}
+        ${isPrimary ? '<div class="img-primary-label">Ảnh chính</div>' : ""}
+        <button type="button" class="img-remove" data-remove="${i}" title="Xóa ảnh">✕</button>
+      </div>`;
+  }).join("");
+}
+
+// Determine if an image string is an actual image (URL or data URL), not an emoji.
+function looksLikeImage(img) {
+  return typeof img === "string" &&
+    (/^data:image\//i.test(img) || /^https?:\/\//i.test(img) || /^blob:/i.test(img));
+}
+
+// Read selected/dropped image files into base64 and append to formImages.
+function addImageFiles(files) {
+  const list = Array.from(files || []).filter(f => f && f.type && f.type.indexOf("image/") === 0);
+  if (!list.length) { toast("Chỉ chấp nhận file ảnh (.png, .jpg, .gif, .webp...)"); return; }
+  let remaining = list.length;
+  list.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      formImages.push(ev.target.result);
+      remaining--;
+      if (remaining === 0) {
+        renderFormImagePreview();
+        toast("Đã thêm " + list.length + " ảnh");
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Remove an image from the form by index.
+function removeFormImage(idx) {
+  formImages.splice(idx, 1);
+  renderFormImagePreview();
 }
 
 function saveForm() {
@@ -281,6 +365,7 @@ function saveForm() {
   const price = Number(document.getElementById("f-price").value) || 0;
   const stock = Number(document.getElementById("f-stock").value) || 0;
   const products = getProducts();
+  const images = formImages.length ? formImages : ["🔧"];
 
   const data = {
     name,
@@ -289,7 +374,8 @@ function saveForm() {
     stock,
     unit: document.getElementById("f-unit").value || "cái",
     desc: document.getElementById("f-desc").value.trim(),
-    image: document.getElementById("f-image").value.trim() || "🔧",
+    images: images,
+    image: images[0],
     rating: Number(document.getElementById("f-rating").value) || 4.5
   };
 
@@ -369,26 +455,37 @@ function commitInline(id, colIdx, value) {
   }
 }
 
-// ===== Upload image (base64) =====
+// ===== Upload image (base64, multiple) =====
+// Opens a file picker allowing multiple images; appends them to the product's images array.
 function uploadImage(id) {
   const input = document.createElement("input");
   input.type = "file";
-  input.accept = "image/*";
+  input.accept = "image/png,image/jpeg,image/gif,image/webp,image/jpg";
+  input.multiple = true;
   input.onchange = e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const products = getProducts();
-      const idx = products.findIndex(p => Number(p.id) === Number(id));
-      if (idx >= 0) {
-        products[idx].image = ev.target.result;
-        saveProducts(products);
-        renderTable();
-        toast("Đã cập nhật ảnh");
-      }
-    };
-    reader.readAsDataURL(file);
+    const files = Array.from(e.target.files || []).filter(f => f && f.type && f.type.indexOf("image/") === 0);
+    if (!files.length) { toast("Không có file ảnh hợp lệ"); return; }
+    const products = getProducts();
+    const idx = products.findIndex(p => Number(p.id) === Number(id));
+    if (idx < 0) return;
+    const existing = getProductImages(products[idx]);
+    const newImgs = [];
+    let remaining = files.length;
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        newImgs.push(ev.target.result);
+        remaining--;
+        if (remaining === 0) {
+          products[idx].images = existing.concat(newImgs);
+          products[idx].image = products[idx].images[0];
+          saveProducts(products);
+          renderTable();
+          toast("Đã thêm " + newImgs.length + " ảnh");
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
   input.click();
 }
@@ -397,6 +494,7 @@ function resetImage(id) {
   const products = getProducts();
   const idx = products.findIndex(p => Number(p.id) === Number(id));
   if (idx >= 0) {
+    products[idx].images = ["🔧"];
     products[idx].image = "🔧";
     saveProducts(products);
     renderTable();

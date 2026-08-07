@@ -65,6 +65,31 @@ function clone(arr) {
   return JSON.parse(JSON.stringify(arr));
 }
 
+// ---- Product images (support multiple images per product) ----
+// Returns an array of image strings (URL or base64 data URL or emoji).
+// Backward compatible: uses p.images if present, otherwise wraps p.image.
+function getProductImages(p) {
+  if (!p) return [];
+  if (Array.isArray(p.images) && p.images.length) return p.images;
+  if (p.image) return [p.image];
+  return ["🔧"];
+}
+
+// Return the primary (first) image for display.
+function getPrimaryImage(p) {
+  return getProductImages(p)[0] || "🔧";
+}
+
+// Normalize a product so it always has an images array.
+function ensureImagesArray(p) {
+  if (!p) return p;
+  if (!Array.isArray(p.images) || !p.images.length) {
+    p.images = p.image ? [p.image] : ["🔧"];
+  }
+  p.image = p.images[0];
+  return p;
+}
+
 // ---- Cart ----
 function getCart() {
   try {
@@ -137,9 +162,9 @@ async function exportProducts(format = "xlsx") {
   const wsData = [
     ["Mã SP", "Tên sản phẩm", "Danh mục", "Giá (VNĐ)", "Tồn kho", "Đơn vị", "Mô tả", "Hình (emoji/URL)", "Đánh giá"]
   ];
-  products.forEach(p => {
+products.forEach(p => {
     wsData.push([
-      p.id, p.name, p.category, p.price, p.stock, p.unit, p.desc, p.image, p.rating
+      p.id, p.name, p.category, p.price, p.stock, p.unit, p.desc, getProductImages(p).join(" || "), p.rating
     ]);
   });
   const ws = SheetJS.utils.aoa_to_sheet(wsData);
@@ -215,6 +240,16 @@ function rowsToProducts(rows) {
     const price = colMap.price >= 0 ? Number(String(row[colMap.price]).replace(/[^\d]/g, "")) || 0 : 0;
     const stock = colMap.stock >= 0 ? Number(String(row[colMap.stock]).replace(/[^\d]/g, "")) || 0 : 0;
     const rating = colMap.rating >= 0 ? Number(row[colMap.rating]) || 4.5 : 4.5;
+    const rawImages = colMap.image >= 0 && row[colMap.image] !== "" && row[colMap.image] != null
+      ? String(row[colMap.image]).trim()
+      : "🔧";
+    // Multiple images are separated by " || " in export; support comma too.
+    const imagesArr = rawImages
+      .split(/\s*\|\|\s*/
+    )
+      .map(s => s.trim())
+      .filter(Boolean);
+    const images = imagesArr.length ? imagesArr : ["🔧"];
 
     products.push({
       id,
@@ -224,7 +259,8 @@ function rowsToProducts(rows) {
       stock,
       unit: colMap.unit >= 0 ? String(row[colMap.unit] || "cái").trim() : "cái",
       desc: colMap.desc >= 0 ? String(row[colMap.desc] || "").trim() : "",
-      image: colMap.image >= 0 ? String(row[colMap.image] || "🔧").trim() : "🔧",
+      images,
+      image: images[0],
       rating: rating > 5 ? 5 : rating
     });
   }

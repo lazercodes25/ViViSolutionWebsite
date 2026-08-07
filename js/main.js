@@ -47,9 +47,10 @@ function renderProducts() {
   }
 
   grid.innerHTML = filtered.map(p => {
-    const imgHtml = p.image && /^https?:\/\//i.test(p.image)
-      ? `<img src="${p.image}" alt="${p.name}" onerror="this.onerror=null;this.replaceWith('🔧')" />`
-      : `<span>${p.image || "🔧"}</span>`;
+    const primary = getPrimaryImage(p);
+    const imgHtml = looksLikeImage(primary)
+      ? `<img src="${primary}" alt="${p.name}" onerror="this.onerror=null;this.replaceWith('🔧')" />`
+      : `<span>${primary}</span>`;
     const st = stockStatus(p.stock);
     const stars = renderStars(p.rating);
     const disabled = p.stock <= 0 ? "disabled" : "";
@@ -166,12 +167,25 @@ function openDetail(id) {
   const p = getProducts().find(p => Number(p.id) === Number(id));
   if (!p) return;
   const st = stockStatus(p.stock);
-  const imgHtml = p.image && /^https?:\/\//i.test(p.image)
-    ? `<img src="${p.image}" style="max-height:200px" alt="${p.name}" />`
-    : `<div style="font-size:5rem;text-align:center">${p.image || "🔧"}</div>`;
+  const imgs = getProductImages(p);
+  const imgHtml = looksLikeImage(imgs[0])
+    ? `<img src="${imgs[0]}" style="max-height:220px;margin:0 auto" alt="${p.name}" id="galleryMainImg" />`
+    : `<div style="font-size:5rem;text-align:center">${imgs[0] || "🔧"}</div>`;
+  // Thumbnail gallery (if multiple images)
+  const thumbs = imgs.length > 1
+    ? `<div class="gallery-thumbs" style="display:flex;gap:.5rem;justify-content:center;margin-top:.6rem;flex-wrap:wrap">
+        ${imgs.map((img, i) => {
+          const tContent = looksLikeImage(img)
+            ? `<img src="${img}" alt="">`
+            : `<span>${img}</span>`;
+          return `<button type="button" class="gallery-thumb ${i === 0 ? "active" : ""}" data-gidx="${i}" style="width:56px;height:56px;border:2px solid ${i === 0 ? "var(--primary)" : "transparent"};border-radius:8px;overflow:hidden;cursor:pointer;background:#f1f4fa;display:flex;align-items:center;justify-content:center">${tContent}</button>`;
+        }).join("")}
+      </div>`
+    : "";
   document.getElementById("modalBody").innerHTML = `
     <button class="modal-close">✕</button>
     <div style="font-size:4rem;text-align:center;margin-bottom:.5rem">${imgHtml}</div>
+    ${thumbs}
     <h2>${escapeHtml(p.name)}</h2>
     <div class="stars">${renderStars(p.rating)}</div>
     <div class="m-price">${formatPrice(p.price)}</div>
@@ -181,8 +195,27 @@ function openDetail(id) {
       ${p.stock <= 0 ? "Hết hàng" : "🛒 Thêm vào giỏ hàng"}
     </button>`;
   document.getElementById("detailModal").classList.add("show");
+  // Gallery switching
+  document.querySelectorAll(".gallery-thumb").forEach(t => {
+    t.addEventListener("click", () => {
+      const idx = Number(t.dataset.gidx);
+      const cur = getProductImages(getProducts().find(pp => Number(pp.id) === Number(id)));
+      const main = document.getElementById("galleryMainImg");
+      document.querySelectorAll(".gallery-thumb").forEach(x => { x.style.borderColor = "transparent"; });
+      t.style.borderColor = "var(--primary)";
+      if (main && main.tagName === "IMG" && looksLikeImage(cur[idx])) {
+        main.src = cur[idx];
+      }
+    });
+  });
   const add = document.getElementById("modalAdd");
   if (add) add.addEventListener("click", () => { addToCart(id); });
+}
+
+// Determine if an image string is an actual image (URL / data URL), not an emoji.
+function looksLikeImage(img) {
+  return typeof img === "string" &&
+    (/^data:image\//i.test(img) || /^https?:\/\//i.test(img) || /^blob:/i.test(img));
 }
 
 // ===== Cart logic =====
@@ -227,8 +260,9 @@ function renderCart() {
   const itemsHtml = cart.map(c => {
     const p = products.find(pp => Number(pp.id) === Number(c.id));
     if (!p) return "";
-    const img = p.image && /^https?:\/\//i.test(p.image)
-      ? `<img src="${p.image}" alt="" />` : `<span style="font-size:1.3rem">${p.image || "🔧"}</span>`;
+    const primary = getPrimaryImage(p);
+    const img = looksLikeImage(primary)
+      ? `<img src="${primary}" alt="" />` : `<span style="font-size:1.3rem">${primary}</span>`;
     qty += c.qty;
     total += p.price * c.qty;
     return `

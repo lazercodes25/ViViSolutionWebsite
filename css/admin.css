@@ -245,6 +245,61 @@ td.thumb img { max-width: 100%; max-height: 100%; }
 .drop-area:hover, .drop-area.drag { border-color: var(--primary); background: #eef4ff; }
 .drop-area i { font-size: 2.4rem; margin-bottom: 0.5rem; display: block; color: var(--primary-light); }
 
+/* ===== Multi-image upload (product form) ===== */
+.img-drop { padding: 1.4rem 1rem; }
+.img-drop i { font-size: 1.8rem; }
+.img-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+.img-preview.filled { padding-top: 0.4rem; }
+.img-thumb {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fafcff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.img-thumb img { max-width: 100%; max-height: 100%; object-fit: cover; }
+.img-thumb .thumb-emoji { font-size: 1.8rem; }
+.img-thumb .img-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(211,47,47,0.9);
+  color: #fff;
+  font-size: 0.7rem;
+  cursor: pointer;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.img-thumb .img-remove:hover { background: var(--danger); }
+.img-thumb.is-primary { border: 2px solid var(--primary); }
+.img-thumb .img-primary-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.6rem;
+  text-align: center;
+  padding: 1px 0;
+}
+
 #toast {
   position: fixed;
   bottom: 20px;
