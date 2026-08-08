@@ -317,6 +317,28 @@ td.thumb img { max-width: 100%; max-height: 100%; }
   font-size: 0.95rem;
 }
 
+/* ===== Product options editor (admin form) ===== */
+.opt-editor { display: flex; flex-direction: column; gap: 0.5rem; }
+.opt-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.7fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  background: #f6f9ff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+.opt-row input { width: 100%; padding: 0.45rem 0.6rem; border: 1px solid var(--border); border-radius: 6px; outline: none; font-size: 0.88rem; }
+.opt-row input:focus { border-color: var(--primary); }
+.opt-remove { border: none; background: #fde5e0; color: var(--danger); border-radius: 6px; width: 30px; height: 30px; cursor: pointer; font-size: 0.9rem; }
+.opt-remove:hover { background: var(--danger); color: #fff; }
+
+@media (max-width: 640px) {
+  .opt-row { grid-template-columns: 1fr 1fr; }
+  .opt-row .opt-price, .opt-row .opt-stock { grid-column: auto; }
+}
+
 @media (max-width: 640px) {
   .form-grid { grid-template-columns: 1fr; }
   .toolbar .group { width: 100%; }

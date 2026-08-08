@@ -1,29 +1,27 @@
-# TODO — Website Điện tử E-Solution Đà Nẵng
+# TODO - Cải thiện website E-Solution
 
-## ✅ Hoàn thành
-- [x] Cấu trúc thư mục + giao diện (style.css, admin.css)
-- [x] js/data.js — dữ liệu + Excel nhập/xuất
-- [x] js/main.js — trang bán hàng (danh mục, tìm kiếm, giỏ hàng)
-- [x] js/admin.js — trang quản trị (bảng Excel-like, nhập/xuất)
-- [x] index.html, admin.html
-- [x] Sửa lỗi escapeHtml
+## Đã hoàn thành trước đó
+- Bỏ tồn kho/tổng giá trị khỏi trang chủ → hiển thị SĐT 0773372913 + Gmail xuantung2521@gmail.com
+- Xuất Excel/CSV bỏ cột ảnh (giữ nguyên tính năng xuất)
+- Sửa dấu ✕ đóng modal chi tiết sản phẩm
+- Fix responsive trang thanh toán trên mobile
+- Chỉ giữ phương thức thanh toán COD
+- Cải thiện hero responsive + danh mục sidebar + tài liệu email
 
-## ✅ Đợt 2 (Theo yêu cầu mới)
-- [x] js/auth.js — hệ thống đăng nhập (admin + user)
-- [x] js/data.js — thêm đơn hàng, phí vận chuyển, voucher, giảm giá user
-- [x] checkout.html + js/checkout.js — trang thanh toán (thông tin, voucher, ghi chú, phí ship)
-- [x] index.html + js/main.js — thêm login/register, giỏ hàng → chuyển trang thanh toán
-- [x] admin.html + js/admin.js — bảo vệ bằng đăng nhập admin, quản lý đơn hàng, logout
-- [x] css/style.css — thêm style checkout, auth modal, đơn hàng
+## Phần A — Supabase đồng bộ ảnh + sản phẩm + đơn hàng dùng chung
+- [ ] Tạo `js/supabase.js` (helper REST + storage dùng fetch)
+- [ ] Cập nhật `js/data.js` đồng bộ products/orders/banners với Supabase (kèm fallback localStorage)
+- [ ] Cập nhật admin upload ảnh → Supabase Storage lấy public URL
+- [ ] Cập nhật banner → Supabase Storage
+- [ ] Ghi hướng dẫn setup Supabase (bucket, SQL bảng) vào README
 
-## ✅ Đợt 3 (Phản hồi & Deploy)
-- [x] **Sửa bug đặt hàng**: `calcTotals()` trong checkout.js ghi đè biến `userDiscRate` để không xung đột hàm `userDiscount()` → giờ khách (kể cả chưa đăng nhập) đặt hàng được
-- [x] **Hiển thị giỏ hàng + tổng tiền** rõ ràng trên trang thanh toán (osItems + priceBreakdown)
-- [x] **Thêm thông báo "đặt hàng như khách"** trên trang thanh toán cho người chưa đăng nhập
-- [x] **Khởi tạo git repo** + commit toàn bộ để sẵn sàng deploy
+## Phần B — Option sản phẩm
+- [ ] `admin.html`: thêm trình soạn "Tùy chọn" (nhãn + giá + tồn kho)
+- [ ] `js/admin.js`: logic option trong form + lưu
+- [ ] `js/main.js`: modal sản phẩm hiển thị dropdown option, thêm giỏ kèm option
+- [ ] `js/main.js` giỏ hàng hiển thị option
+- [ ] `js/checkout.js`: checkout + giảm đúng tồn kho option
 
-## ✅ Đợt 4 (Đổi tên shop + Deploy)
-- [x] **Đổi tên shop** thành "Điện tử E-Solution Đà Nẵng" trên toàn bộ source (HTML, JS, CSS, README, TODO)
-- [ ] Commit & push thay đổi lên GitHub
-- [ ] Kích hoạt GitHub Pages → website chạy tại https://lazercodes25.github.io/ESolutionWebsite/
-- [ ] Chạy thử trên trình duyệt ở địa phương
+## Kiểm thử
+- [ ] Chạy local, kiểm tra option, ảnh upload, đặt hàng
+

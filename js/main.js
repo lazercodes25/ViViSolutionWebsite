@@ -136,6 +136,24 @@ function escapeHtml(s) {
 }
 
 function bindEvents() {
+  // Category sidebar toggle (mobile)
+  const catToggle = document.getElementById("catToggle");
+  const catSidebar = document.getElementById("catSidebar");
+  const catScrim = document.getElementById("catScrim");
+  function openCatSidebar() {
+    catSidebar.classList.add("open");
+    if (catScrim) catScrim.classList.add("show");
+  }
+  function closeCatSidebar() {
+    catSidebar.classList.remove("open");
+    if (catScrim) catScrim.classList.remove("show");
+  }
+  if (catToggle) catToggle.addEventListener("click", () => {
+    if (catSidebar.classList.contains("open")) closeCatSidebar();
+    else openCatSidebar();
+  });
+  if (catScrim) catScrim.addEventListener("click", closeCatSidebar);
+
   // Category
   document.getElementById("catBar").addEventListener("click", e => {
     const btn = e.target.closest(".cat-btn");
@@ -143,6 +161,7 @@ function bindEvents() {
     currentCategory = btn.dataset.cat;
     renderCategories();
     renderProducts();
+    closeCatSidebar();
   });
 
   // Search
@@ -183,13 +202,14 @@ function bindEvents() {
   document.getElementById("cartBtn").addEventListener("click", () => document.getElementById("cartDrawer").classList.add("open"));
   document.getElementById("cartClose").addEventListener("click", () => document.getElementById("cartDrawer").classList.remove("open"));
 
-  document.getElementById("cartItems").addEventListener("click", e => {
+document.getElementById("cartItems").addEventListener("click", e => {
     const btn = e.target.closest("button");
     if (!btn) return;
     const id = btn.dataset.id;
-    if (btn.dataset.act === "inc") changeQty(id, 1);
-    if (btn.dataset.act === "dec") changeQty(id, -1);
-    if (btn.dataset.act === "rm") removeFromCart(id);
+    const opt = btn.dataset.opt || "Mặc định";
+    if (btn.dataset.act === "inc") changeQty(id, 1, opt);
+    if (btn.dataset.act === "dec") changeQty(id, -1, opt);
+    if (btn.dataset.act === "rm") removeFromCart(id, opt);
   });
 
 document.getElementById("checkoutBtn").addEventListener("click", checkout);
@@ -221,24 +241,70 @@ function openDetail(id) {
         }).join("")}
       </div>`
     : "";
+// Options (biến thể sản phẩm)
+  const opts = getProductOptions(p);
+  const hasMultiOpts = opts.length > 1;
+  const optHtml = hasMultiOpts
+    ? `<div class="opt-select">
+        <label>Chọn phân loại:</label>
+        ${opts.map((o, i) => {
+          const os = optionStock(p, o);
+          const disabled = os <= 0 ? "disabled" : "";
+          return `<button type="button" class="opt-chip ${i === 0 ? "active" : ""}" data-opt="${i}" data-ostock="${os}" ${disabled}>
+            ${escapeHtml(optionLabel(o))}
+            ${os <= 0 ? '<span class="opt-soldout">(hết)</span>' : ""}
+          </button>`;
+        }).join("")}
+      </div>`
+    : "";
   document.getElementById("modalBody").innerHTML = `
     <button class="modal-close">✕</button>
     <div style="font-size:4rem;text-align:center;margin-bottom:.5rem">${imgHtml}</div>
     ${thumbs}
     <h2>${escapeHtml(p.name)}</h2>
     <div class="stars">${renderStars(p.rating)}</div>
-    <div class="m-price">${formatPrice(p.price)}</div>
+    <div class="m-price" id="modalPrice">${formatPrice(optionPrice(p, opts[0]))}</div>
     <p class="m-desc">${escapeHtml(p.desc || "Chưa có mô tả.")}</p>
-    <p class="pc-stock ${st.cls}">${st.label} (${p.stock} ${p.unit})</p>
-    <button class="btn btn-accent" id="modalAdd" ${p.stock <= 0 ? "disabled" : ""} style="width:100%;margin-top:.8rem">
-      ${p.stock <= 0 ? "Hết hàng" : "🛒 Thêm vào giỏ hàng"}
+    ${optHtml}
+    <p class="pc-stock ${st.cls}" id="modalStock">${st.label} (${optionStock(p, opts[0])} ${p.unit})</p>
+    <button class="btn btn-accent" id="modalAdd" style="width:100%;margin-top:.8rem">
+      ${optionStock(p, opts[0]) <= 0 ? "Hết hàng" : "🛒 Thêm vào giỏ hàng"}
     </button>`;
   document.getElementById("detailModal").classList.add("show");
+
+  // Track the currently selected option index
+  let selOpt = 0;
   // Close button for the dynamic detail modal
   const closeBtn = document.querySelector("#modalBody .modal-close");
   if (closeBtn) {
     closeBtn.addEventListener("click", () => {
       document.getElementById("detailModal").classList.remove("show");
+    });
+  }
+  // Option chip selection
+  const chips = document.querySelectorAll("#modalBody .opt-chip");
+  if (chips.length) {
+    chips.forEach(chip => {
+      chip.addEventListener("click", () => {
+        chips.forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        selOpt = Number(chip.dataset.opt);
+        const curOpt = opts[selOpt];
+        const priceEl = document.getElementById("modalPrice");
+        const stockEl = document.getElementById("modalStock");
+        const addBtn = document.getElementById("modalAdd");
+        if (priceEl) priceEl.textContent = formatPrice(optionPrice(p, curOpt));
+        const os = optionStock(p, curOpt);
+        const ost = stockStatus(os);
+        if (stockEl) {
+          stockEl.className = "pc-stock " + st.cls;
+          stockEl.textContent = ost.label + " (" + os + " " + p.unit + ")";
+        }
+        if (addBtn) {
+          addBtn.disabled = os <= 0;
+          addBtn.textContent = os <= 0 ? "Hết hàng" : "🛒 Thêm vào giỏ hàng";
+        }
+      });
     });
   }
   // Gallery switching
@@ -255,7 +321,14 @@ function openDetail(id) {
     });
   });
   const add = document.getElementById("modalAdd");
-  if (add) add.addEventListener("click", () => { addToCart(id); });
+  if (add) {
+    add.setAttribute("data-sel", "0");
+    add.addEventListener("click", () => {
+      const curOpt = opts[selOpt];
+      if (curOpt && optionStock(p, curOpt) <= 0) { toast("Phân loại này hiện hết hàng"); return; }
+      addToCart(id, curOpt);
+    });
+  }
 }
 
 // Determine if an image string is an actual image (URL / data URL), not an emoji.
@@ -265,36 +338,58 @@ function looksLikeImage(img) {
 }
 
 // ===== Cart logic =====
-function addToCart(id) {
+// Cart item: { id, qty, optLabel?, optPrice?, optStock? }
+function addToCart(id, opt) {
   const p = getProducts().find(p => Number(p.id) === Number(id));
-  if (!p || p.stock <= 0) { toast("Sản phẩm này hiện hết hàng"); return; }
+  if (!p) return;
+  // Determine unit price & stock for this line
+  const unitPrice = opt && typeof opt.price === "number" && opt.price > 0 ? Number(opt.price) : Number(p.price) || 0;
+  const unitStock = opt && typeof opt.stock === "number" && opt.stock >= 0 ? Number(opt.stock) : Number(p.stock) || 0;
+  const optLabel = opt && opt.label ? String(opt.label) : "Mặc định";
+  if (unitStock <= 0) { toast("Phân loại này hiện hết hàng"); return; }
   const cart = getCart();
-  const found = cart.find(c => Number(c.id) === Number(id));
+  const found = cart.find(c => Number(c.id) === Number(id) && c.optLabel === optLabel);
   if (found) {
-    if (found.qty >= p.stock) { toast("Số lượng vượt quá tồn kho"); return; }
+    if (found.qty >= unitStock) { toast("Số lượng vượt quá tồn kho"); return; }
     found.qty++;
   } else {
-    cart.push({ id: Number(id), qty: 1 });
+    cart.push({ id: Number(id), qty: 1, optLabel, optPrice: unitPrice, optStock: unitStock });
   }
   saveCart(cart);
   renderCart();
   toast("Đã thêm vào giỏ hàng 🛒");
 }
 
-function changeQty(id, delta) {
+function lineKey(c) {
+  return String(c.id) + "::" + (c.optLabel || "Mặc định");
+}
+
+function findLine(cart, id, optLabel) {
+  const norm = optLabel || "Mặc định";
+  return cart.find(c => Number(c.id) === Number(id) && (c.optLabel || "Mặc định") === norm);
+}
+
+function changeQty(id, delta, optLabel) {
   const p = getProducts().find(p => Number(p.id) === Number(id));
   let cart = getCart();
-  const found = cart.find(c => Number(c.id) === Number(id));
+  const found = findLine(cart, id, optLabel);
   if (!found) return;
+  let maxStock = Number(p && p.stock) || 0;
+  if (typeof found.optStock === "number" && found.optStock >= 0) maxStock = found.optStock;
   found.qty += delta;
-  if (found.qty <= 0) cart = cart.filter(c => Number(c.id) !== Number(id));
-  if (p && found.qty > p.stock) { found.qty = p.stock; toast("Vượt quá tồn kho"); }
+  if (found.qty <= 0) cart = cart.filter(c => lineKey(c) !== lineKey(found));
+  if (p && maxStock >= 0 && found.qty > maxStock) { found.qty = maxStock; toast("Vượt quá tồn kho"); }
   saveCart(cart);
   renderCart();
 }
 
-function removeFromCart(id) {
-  let cart = getCart().filter(c => Number(c.id) !== Number(id));
+function removeFromCart(id, optLabel) {
+  let cart = getCart();
+  if (arguments.length >= 2 && optLabel) {
+    cart = cart.filter(c => !(Number(c.id) === Number(id) && (c.optLabel || "Mặc định") === optLabel));
+  } else {
+    cart = cart.filter(c => Number(c.id) !== Number(id));
+  }
   saveCart(cart);
   renderCart();
 }
@@ -309,21 +404,24 @@ function renderCart() {
     const primary = getPrimaryImage(p);
     const img = looksLikeImage(primary)
       ? `<img src="${primary}" alt="" />` : `<span style="font-size:1.3rem">${primary}</span>`;
+    const unitPrice = (typeof c.optPrice === "number" && c.optPrice > 0) ? c.optPrice : (Number(p.price) || 0);
+    const optLabel = c.optLabel || "Mặc định";
     qty += c.qty;
-    total += p.price * c.qty;
+    total += unitPrice * c.qty;
     return `
-      <div class="cart-item">
+      <div class="cart-item" data-line="${lineKey(c)}">
         <div class="ci-img">${img}</div>
         <div class="ci-info">
           <div class="ci-name">${escapeHtml(p.name)}</div>
-          <div class="ci-price">${formatPrice(p.price)} × ${c.qty}</div>
+          ${p.options && p.options.length > 1 ? `<div class="ci-opt">${escapeHtml(optLabel)}</div>` : ""}
+          <div class="ci-price">${formatPrice(unitPrice)} × ${c.qty}</div>
           <div class="qty-ctrl">
-            <button data-act="dec" data-id="${p.id}">−</button>
+            <button data-act="dec" data-id="${p.id}" data-opt="${escapeHtml(optLabel)}">−</button>
             <span>${c.qty}</span>
-            <button data-act="inc" data-id="${p.id}">+</button>
+            <button data-act="inc" data-id="${p.id}" data-opt="${escapeHtml(optLabel)}">+</button>
           </div>
         </div>
-        <button class="ci-remove" data-act="rm" data-id="${p.id}">🗑️</button>
+        <button class="ci-remove" data-act="rm" data-id="${p.id}" data-opt="${escapeHtml(optLabel)}">🗑️</button>
       </div>`;
   }).join("");
 

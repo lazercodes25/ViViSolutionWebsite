@@ -33,8 +33,18 @@
     </div>
   </header>
 
-  <!-- Category bar -->
-  <div class="cat-bar" id="catBar"></div>
+  <!-- Category sidebar toggle (mobile) -->
+  <button class="cat-toggle" id="catToggle" aria-label="Mở danh mục">
+    <i class="fa-solid fa-bars"></i> <span>Danh mục</span>
+  </button>
+
+<!-- Category sidebar -->
+  <div class="cat-sidebar" id="catSidebar">
+    <div class="cat-sidebar-head">Danh mục</div>
+    <div class="cat-bar" id="catBar"></div>
+  </div>
+  <!-- Scrim overlay for mobile sidebar -->
+  <div class="cat-scrim" id="catScrim"></div>
 
   <!-- Hero -->
   <section class="hero">
@@ -114,6 +124,7 @@
   <!-- Toast -->
   <div id="toast"></div>
 
+<script src="js/supabase.js"></script>
   <script src="js/data.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>

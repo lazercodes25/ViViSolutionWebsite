@@ -25,9 +25,31 @@ const DEFAULT_PRODUCTS = [
   { id: 7, name: "Màn hình OLED 0.96 inch", category: "Màn hình", price: 85000, stock: 90, unit: "cái", image: "🖼️", desc: "Màn hình OLED 128x64, giao tiếp I2C, tiết kiệm điện.", rating: 4.7 },
   { id: 8, name: "Nguồn tổ ong 12V 5A", category: "Nguồn & Sạc", price: 180000, stock: 25, unit: "cái", image: "🔋", desc: "Bộ nguồn chuyển mạch 12V 5A dùng cho CNC, LED, động cơ.", rating: 4.6 },
   { id: 9, name: "Bộ sạc TP4056", category: "Nguồn & Sạc", price: 25000, stock: 200, unit: "cái", image: "💡", desc: "Module sạc pin Lithium 1 cell, có bảo vệ.", rating: 4.5 },
-  { id: 10, name: "Điện trở 1/4W (bộ 100)", category: "Linh kiện thụ động", price: 12000, stock: 500, unit: "bộ", image: "🔶", desc: "Bộ điện trở carbon 1/4W nhiều giá trị, có hộp phân loại.", rating: 4.8 },
-  { id: 11, name: "Tụ gốm 104 (bộ 500)", category: "Linh kiện thụ động", price: 15000, stock: 300, unit: "bộ", image: "🔷", desc: "Tụ gốm nhiều giá trị phổ biến cho mạch điện tử.", rating: 4.6 },
-  { id: 12, name: "LED 5mm (bộ 100)", category: "Linh kiện thụ động", price: 20000, stock: 400, unit: "bộ", image: "🔴", desc: "LED 5mm nhiều màu: đỏ, xanh, vàng, trắng.", rating: 4.7 },
+  { id: 10, name: "Điện trở carbon 1/4W (bộ 100)", category: "Linh kiện thụ động", price: 12000, stock: 500, unit: "bộ", image: "🔶", desc: "Điện trở carbon 1/4W các giá trị thông dụng, đóng bộ 100. Chọn giá trị ở chi tiết sản phẩm.", rating: 4.8, options: [
+    { label: "10Ω", price: 12000, stock: 300 },
+    { label: "100Ω", price: 12000, stock: 300 },
+    { label: "220Ω", price: 12000, stock: 280 },
+    { label: "470Ω", price: 12000, stock: 260 },
+    { label: "1kΩ", price: 12000, stock: 320 },
+    { label: "10kΩ", price: 12000, stock: 300 },
+    { label: "100kΩ", price: 12000, stock: 220 },
+    { label: "1MΩ", price: 12000, stock: 180 }
+  ] },
+  { id: 11, name: "Tụ gốm nhiều giá trị (bộ 500)", category: "Linh kiện thụ động", price: 15000, stock: 300, unit: "bộ", image: "🔷", desc: "Tụ gốm (ceramic) nhiều giá trị điện dung thông dụng, đóng bộ 500. Chọn giá trị ở chi tiết sản phẩm.", rating: 4.6, options: [
+    { label: "1nF", price: 15000, stock: 200 },
+    { label: "10nF", price: 15000, stock: 200 },
+    { label: "22nF", price: 15000, stock: 180 },
+    { label: "100nF", price: 15000, stock: 250 },
+    { label: "220nF", price: 15000, stock: 160 },
+    { label: "1µF", price: 15000, stock: 220 }
+  ] },
+  { id: 12, name: "LED 5mm (bộ 100)", category: "Linh kiện thụ động", price: 20000, stock: 400, unit: "bộ", image: "🔴", desc: "LED 5mm các màu, đóng bộ 100. Chọn màu ở chi tiết sản phẩm.", rating: 4.7, options: [
+    { label: "Đỏ", price: 20000, stock: 300 },
+    { label: "Xanh lá", price: 20000, stock: 300 },
+    { label: "Xanh dương", price: 20000, stock: 280 },
+    { label: "Vàng", price: 20000, stock: 260 },
+    { label: "Trắng", price: 20000, stock: 240 }
+  ] },
   { id: 13, name: "Cáp nhảy đực-cái (bộ 40)", category: "Kết nối", price: 35000, stock: 150, unit: "bộ", image: "🪢", desc: "Dây nhảy jumper 20cm đủ màu cho breadboard.", rating: 4.5 },
   { id: 14, name: "KIT Breadboard MB-102", category: "Kết nối", price: 45000, stock: 70, unit: "cái", image: "🧩", desc: "Breadboard 830 lỗ + dây cắm, dùng test mạch nhanh.", rating: 4.8 },
   { id: 15, name: "Mỏ hàn 60W", category: "Công cụ", price: 150000, stock: 18, unit: "cái", image: "🛠️", desc: "Mỏ hàn điện 60W có đầu chống dính.", rating: 4.4 },
@@ -42,7 +64,27 @@ const CART_KEY = "dnd_cart";
 const BANNER_KEY = "dnd_banners";
 
 // ---- Product CRUD ----
-function getProducts() {
+// Có đồng bộ Supabase (dùng chung) + fallback localStorage.
+let _sbConnected = false;
+
+function isSupabaseOn() {
+  return typeof window !== "undefined" && window.encodeURIComponent === encodeURIComponent &&
+    typeof sbFetch === "function";
+}
+
+// Khởi tạo: seed sản phẩm lên Supabase nếu bảng trống (nếu cấu hình có sẵn)
+async function initSupabaseSync() {
+  try {
+    if (typeof sbFetch !== "function") return;
+    const local = localProducts();
+    const remote = await sbSeedProductsIfEmpty(local);
+    if (remote && remote.length) _sbConnected = true;
+  } catch (e) {
+    _sbConnected = false;
+  }
+}
+
+function localProducts() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
@@ -50,8 +92,32 @@ function getProducts() {
   return clone(DEFAULT_PRODUCTS);
 }
 
+let _productsCache = null;
+async function getProductsAsync() {
+  try {
+    if (typeof sbFetch === "function") {
+      const remote = await sbLoadProducts();
+      if (remote && remote.length) {
+        _productsCache = remote;
+        return remote;
+      }
+    }
+  } catch (e) {}
+  return localProducts();
+}
+
+function getProducts() {
+  if (_productsCache && _productsCache.length) return _productsCache;
+  return localProducts();
+}
+
 function saveProducts(products) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+  _productsCache = products;
+  // Đồng bộ lên Supabase (không await để không chặn UI)
+  if (typeof sbFetch === "function") {
+    sbSaveProducts(products).catch(() => {});
+  }
 }
 
 function resetProducts() {
@@ -111,15 +177,50 @@ function getBanners() {
 }
 function saveBanners(banners) {
   localStorage.setItem(BANNER_KEY, JSON.stringify(banners));
+  if (typeof sbFetch === "function") {
+    sbSaveBanners(banners).catch(() => {});
+  }
+}
+async function getBannersAsync() {
+  try {
+    if (typeof sbFetch === "function") {
+      const remote = await sbLoadBanners();
+      if (remote && remote.length) return remote;
+    }
+  } catch (e) {}
+  return getBanners();
 }
 
 // ---- Product options ----
-// Each product may have an `options` array (e.g. resistor values).
-// Products without options get a single default option so the UI always shows one.
+// Mỗi product có thể có `options`: mảng { label, price, stock }.
+// Sản phẩm không có option sẽ có 1 option mặc định dùng giá/tồn kho của sản phẩm.
 function getProductOptions(p) {
-  if (!p) return ["Mặc định"];
-  if (Array.isArray(p.options) && p.options.length) return p.options;
-  return ["Mặc định"];
+  if (!p) return [{ label: "Mặc định", price: 0, stock: 0 }];
+  if (Array.isArray(p.options) && p.options.length) {
+    return p.options.map(o =>
+      typeof o === "string"
+        ? { label: o, price: p.price || 0, stock: p.stock || 0 }
+        : { label: o.label || "Mặc định", price: Number(o.price) || p.price || 0, stock: Number(o.stock) >= 0 ? Number(o.stock) : (p.stock || 0) }
+    );
+  }
+  return [{ label: "Mặc định", price: p.price || 0, stock: p.stock || 0 }];
+}
+
+// Lấy giá theo option; nếu option không ghi đè giá thì dùng giá sản phẩm.
+function optionPrice(p, opt) {
+  if (opt && typeof opt.price === "number" && Number(opt.price) > 0) return Number(opt.price);
+  return Number(p.price) || 0;
+}
+
+// Lấy tồn kho theo option; nếu option không ghi đè thì dùng tồn kho sản phẩm.
+function optionStock(p, opt) {
+  if (opt && typeof opt.stock === "number" && opt.stock >= 0) return Number(opt.stock);
+  return Number(p.stock) || 0;
+}
+
+// Lấy tên hiển thị của option.
+function optionLabel(opt) {
+  return (opt && opt.label) || "Mặc định";
 }
 
 // ---- Cart ----
@@ -151,6 +252,18 @@ function getOrders() {
 }
 function saveOrders(orders) {
   localStorage.setItem(ORDER_KEY, JSON.stringify(orders));
+  if (typeof sbFetch === "function") {
+    sbSaveOrders(orders).catch(() => {});
+  }
+}
+async function getOrdersAsync() {
+  try {
+    if (typeof sbFetch === "function") {
+      const remote = await sbLoadOrders();
+      if (remote && remote.length) return remote;
+    }
+  } catch (e) {}
+  return getOrders();
 }
 
 // ---- Shipping & Vouchers ----

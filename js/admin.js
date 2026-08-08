@@ -595,7 +595,7 @@ function renderOrders() {
   // sort newest first
   orders.sort((a, b) => b.id - a.id);
   list.innerHTML = orders.map(o => {
-    const items = (o.items || []).map(i => `<div style="font-size:.82rem">• ${escapeHtml(i.name)} ×${i.qty} — ${formatPrice(i.price * i.qty)}</div>`).join("");
+    const items = (o.items || []).map(i => `<div style="font-size:.82rem">• ${escapeHtml(i.name)}${i.optLabel ? ` (${escapeHtml(i.optLabel)})` : ""} ×${i.qty} — ${formatPrice(i.price * i.qty)}</div>`).join("");
     const discounts = [];
     if (o.userDiscount) discounts.push("Thành viên -5%: -" + formatPrice(o.userDiscount));
     if (o.voucherCode) discounts.push("Voucher " + escapeHtml(o.voucherCode) + ": -" + formatPrice(o.voucherDiscount));

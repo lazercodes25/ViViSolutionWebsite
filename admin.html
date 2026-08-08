@@ -126,6 +126,14 @@
             <label>Mô tả</label>
             <textarea id="f-desc" rows="2" placeholder="Mô tả sản phẩm..."></textarea>
           </div>
+          <div class="form-group full">
+            <label>Tùy chọn sản phẩm (VD: trở dán: 10Ω, 100Ω, 1kΩ — mỗi loại có giá & tồn kho riêng)</label>
+            <div id="optEditor" class="opt-editor"></div>
+            <button type="button" class="abtn abtn-ghost abtn-sm" id="optAddBtn" style="margin-top:.4rem">
+              <i class="fa-solid fa-plus"></i> Thêm tùy chọn
+            </button>
+            <div style="font-size:.8rem;color:#8a94a6;margin-top:.3rem">Để trống nếu sản phẩm không có tùy chọn (chỉ 1 mức giá/tồn kho chính).</div>
+          </div>
         </div>
       </form>
       <div class="modal-actions">
@@ -225,6 +233,7 @@
   <!-- Toast -->
   <div id="toast"></div>
 
+<script src="js/supabase.js"></script>
   <script src="js/data.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/admin.js"></script>

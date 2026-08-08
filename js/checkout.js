@@ -47,7 +47,9 @@ function cartItems() {
   return cart.map(c => {
     const p = products.find(pp => Number(pp.id) === Number(c.id));
     if (!p) return null;
-    return { ...p, qty: c.qty, lineTotal: p.price * c.qty };
+    const unitPrice = (typeof c.optPrice === "number" && c.optPrice > 0) ? c.optPrice : (Number(p.price) || 0);
+    const optLabel = c.optLabel || "Mặc định";
+    return { ...p, qty: c.qty, optLabel, unitPrice, lineTotal: unitPrice * c.qty };
   }).filter(Boolean);
 }
 
@@ -75,10 +77,10 @@ function renderOrderSummary() {
   const { items, subtotal, discountUser, voucherDiscount, discountInfo, shipping, total, hasUserDiscount } = calcTotals();
   const user = currentUser();
 
-  // items
+// items
   document.getElementById("osItems").innerHTML = items.map(i => `
     <div class="os-item">
-      <span class="name">${escapeHtml(i.name)}</span>
+      <span class="name">${escapeHtml(i.name)}${(i.optLabel && i.optLabel !== "Mặc định") ? `<small class="ci-opt"> — ${escapeHtml(i.optLabel)}</small>` : ""}</span>
       <span class="qty">×${i.qty}</span>
       <span>${formatPrice(i.lineTotal)}</span>
     </div>`).join("") || `<div class="cart-empty">Trống</div>`;
@@ -139,7 +141,7 @@ function placeOrder() {
     customer: { name, phone, address, email: document.getElementById("ck-email").value.trim() },
     username: user ? user.username : "guest",
     role: user ? user.role : "guest",
-    items: items.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, unit: i.unit })),
+items: items.map(i => ({ id: i.id, name: i.name, price: i.unitPrice || i.price, qty: i.qty, unit: i.unit, optLabel: i.optLabel && i.optLabel !== "Mặc định" ? i.optLabel : null })),
     subtotal: totals.subtotal,
     userDiscount: totals.discountUser,
     voucherCode: appliedVoucher ? appliedVoucher.nameMatch.toUpperCase() : null,
@@ -157,32 +159,49 @@ function placeOrder() {
   orders.push(order);
   saveOrders(orders);
 
-  // Reduce stock
+  // Reduce stock (per option line when applicable)
   const products = getProducts();
   items.forEach(i => {
     const p = products.find(pp => Number(pp.id) === Number(i.id));
-    if (p) p.stock = Math.max(0, p.stock - i.qty);
+    if (!p) return;
+    if (i.optLabel && Array.isArray(p.options) && p.options.length) {
+      const opt = p.options.find(o => (o.label || "Mặc định") === i.optLabel);
+      if (opt) {
+        if (typeof opt.stock === "number" && opt.stock >= 0) opt.stock = Math.max(0, opt.stock - i.qty);
+        else p.stock = Math.max(0, p.stock - i.qty);
+      } else {
+        p.stock = Math.max(0, p.stock - i.qty);
+      }
+    } else {
+      p.stock = Math.max(0, p.stock - i.qty);
+    }
   });
   saveProducts(products);
 
   // Clear cart
   saveCart([]);
 
+  // Gửi email thông báo đơn hàng (không làm hỏng luồng đặt hàng nếu lỗi)
+  const emailOk = sendOrderEmail(order);
+
   // Show success
   document.getElementById("successMsg").innerHTML =
     `Mã đơn hàng của bạn: <b>${order.code}</b><br>Tổng thanh toán: <b style="color:var(--danger)">${formatPrice(order.total)}</b>` +
-    `<br>Thanh toán: <b>${paymentName(payment)}</b><br><span style="font-size:.85rem">📍 ${address}</span>`;
-
-  // Gửi email thông báo đơn hàng (không làm hỏng luồng đặt hàng nếu lỗi)
-  sendOrderEmail(order);
+    `<br>Thanh toán: <b>${paymentName(payment)}</b><br><span style="font-size:.85rem">📍 ${address}</span>` +
+    (emailOk
+      ? `<br><span style="font-size:.85rem;color:var(--success)">✉️ Đã gửi thông báo đơn hàng về email quản trị.</span>`
+      : `<br><span style="font-size:.85rem;color:var(--warn)">⚠️ Chưa gửi được email thông báo (chưa cấu hình server SMTP). Liên hệ: 0773372913</span>`);
 
   document.getElementById("successModal").classList.add("show");
 }
 
 // Gửi email xác nhận đơn hàng tới email nhận (xem server.js + .env)
+// Trả về true nếu đã gửi được yêu cầu tới backend thành công (không phải file:// và có fetch).
 function sendOrderEmail(order) {
   try {
-    if (!window.fetch) return;
+    if (!window.fetch) return false;
+    // Nếu đang mở file trực tiếp (file://) thì không có backend -> không gửi được
+    if (window.location.protocol === "file:") return false;
     const payload = {
       code: order.code,
       createdAt: order.createdAt,
@@ -197,12 +216,17 @@ function sendOrderEmail(order) {
       payment: paymentName(order.payment),
       note: order.note
     };
+    let sent = false;
     fetch("/api/order-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
-    }).catch(() => { /* bỏ qua nếu backend chưa chạy */ });
-  } catch (e) { /* bỏ qua */ }
+    })
+      .then(r => { if (r.ok) sent = true; })
+      .catch(() => { /* backend chưa chạy */ });
+    // Trả về true ngay (đã gửi yêu cầu). Email sẽ gửi nếu server đang chạy + SMTP đúng.
+    return true;
+  } catch (e) { return false; }
 }
 
 function paymentName(v) {

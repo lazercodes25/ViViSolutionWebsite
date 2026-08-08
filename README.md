@@ -55,6 +55,53 @@ Website là **tĩnh** (HTML/CSS/JS) nên deploy rất dễ. Chọn **1 trong 4**
 - Trang chủ hiển thị **số điện thoại** `0773372913` và **email** `xuantung2521@gmail.com` (thay cho thông tin tồn kho/tổng giá trị).
 - Trang thanh toán hỗ trợ **COD** (thanh toán khi nhận hàng).
 
+## 📧 Gửi email thông báo đơn hàng
+
+Khi khách đặt hàng thành công, hệ thống gửi email thông báo về địa chỉ **xuantung2521@gmail.com**. Để tính năng này hoạt động, **bắt buộc** phải có môi trường Node.js và cấu hình SMTP:
+
+> ⚠️ **Lý do email chưa gửi được**: dự án này hiện **chưa có file `.env`** (chỉ có `.env.example`) và **chưa cài `node_modules`**, đồng thời máy đang chưa cài **Node.js**. Bên cạnh đó, nếu bạn vừa mở thẳng `index.html` (file tĩnh) thì không có máy chủ để nhận yêu cầu gửi email.
+
+### Các bước cấu hình (1 lần duy nhất)
+
+1. **Cài Node.js** (nếu chưa có): tải tại https://nodejs.org (bản LTS). Sau đó mở lại Command Prompt / Terminal.
+
+2. **Cài thư viện**: trong thư mục dự án chạy:
+   ```bash
+   npm install
+   ```
+
+3. **Tạo file `.env`**: sao chép nội dung `.env.example` thành file tên `.env` rồi điền đúng mật khẩu ứng dụng:
+   ```
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=465
+   SMTP_USER=xuantung2521@gmail.com
+   SMTP_PASS=XXXX XXXX XXXX XXXX
+   ORDER_RECIPIENT=xuantung2521@gmail.com
+   PORT=3000
+   ```
+
+   > **Cách lấy `SMTP_PASS` (mật khẩu ứng dụng Gmail):**
+   > 1. Bật **Xác minh 2 bước** cho tài khoản Gmail: https://myaccount.google.com/security
+   > 2. Vào **Mật khẩu ứng dụng**: https://myaccount.google.com/apppasswords
+   > 3. Tạo một mật khẩu ứng dụng rồi dán vào `SMTP_PASS` (gồm 4 cụm, có hoặc không có dấu cách đều được).
+   > ❌ *Không dùng mật khẩu đăng nhập Gmail thường* — Gmail sẽ chặn.
+
+4. **Chạy server** (bắt buộc, không mở thẳng `index.html`):
+   ```bash
+   npm start
+   ```
+   Rồi mở trình duyệt tại địa chỉ: **http://localhost:3000**
+   (Server đọc file tĩnh và nhận yêu cầu gửi email qua `/api/order-email`.)
+
+> Khi chạy bằng server, địa chỉ trang chủ và thanh toán phải là `http://localhost:3000`. Nếu bạn mở `index.html` trực tiếp từ thư mục (đường dẫn `file://`), email sẽ **không** gửi được vì không có backend.
+
+### Dùng dịch vụ mail khác
+Bạn có thể đổi `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` tương ứng (ví dụ Zoho, Outlook...) trong file `.env`.
+
+## 🖥️ Danh mục sản phẩm ở bên trái
+- Trên **màn hình lớn (máy tính)**: danh mục nằm cố định ở **cột trái** (Tất cả / Vi xử lý / Bo mạch ...).
+- Trên **điện thoại**: danh mục thu gọn thành nút **"☰ Danh mục"**; bấm vào để mở panel danh mục từ bên trái, chọn xong sẽ tự đóng.
+
 ## ⚠️ Lưu ý quan trọng về dữ liệu
 - Dữ liệu (sản phẩm, giỏ hàng, đơn hàng, tài khoản) lưu trong **localStorage** của Trình duyệt.
 - **Admin** dùng trên máy này → dữ liệu kho/đơn hàng nằm ở máy này → hoạt động tốt.
