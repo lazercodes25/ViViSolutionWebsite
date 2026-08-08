@@ -83,6 +83,8 @@ body {
 .abtn-danger:hover { background: #a82828; }
 .abtn-ghost { background: #eef2f9; color: var(--primary); }
 .abtn-ghost:hover { background: #dfe7f5; }
+.abtn-warn { background: var(--warn); color: #fff; }
+.abtn-warn:hover { background: #e08800; }
 .abtn-sm { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
 
 /* ===== Stats ===== */

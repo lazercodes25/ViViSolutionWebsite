@@ -200,9 +200,40 @@ function bindEvents() {
 // Import button
   document.getElementById("btnImport").addEventListener("click", () => openImportModal());
 
-  // Orders
+// Orders
   document.getElementById("btnOrders").addEventListener("click", openOrdersModal);
   document.getElementById("ordersClose").addEventListener("click", () => document.getElementById("ordersModal").classList.remove("show"));
+
+  // Banner management
+  document.getElementById("btnBanners").addEventListener("click", openBannerModal);
+  document.getElementById("bannerClose").addEventListener("click", () => document.getElementById("bannerModal").classList.remove("show"));
+  document.getElementById("bn-cancel").addEventListener("click", () => document.getElementById("bannerModal").classList.remove("show"));
+  document.getElementById("bn-add-url").addEventListener("click", addBannerFromUrl);
+  document.getElementById("bn-save").addEventListener("click", saveBannersFromEditor);
+  document.getElementById("bn-clear").addEventListener("click", clearAllBanners);
+  document.getElementById("bannerModal").addEventListener("click", e => {
+    if (e.target.id === "bannerModal") document.getElementById("bannerModal").classList.remove("show");
+  });
+  // banner drop area
+  const bnDrop = document.getElementById("bnDropArea");
+  const bnInput = document.getElementById("bn-input");
+  if (bnDrop && bnInput) {
+    bnDrop.addEventListener("click", () => bnInput.click());
+    bnInput.addEventListener("change", e => {
+      addBannerFiles(e.target.files);
+      bnInput.value = "";
+    });
+    ["dragover", "dragenter"].forEach(ev => bnDrop.addEventListener(ev, e => { e.preventDefault(); bnDrop.classList.add("drag"); }));
+    ["dragleave", "drop"].forEach(ev => bnDrop.addEventListener(ev, e => { e.preventDefault(); bnDrop.classList.remove("drag"); }));
+    bnDrop.addEventListener("drop", e => {
+      e.preventDefault();
+      addBannerFiles(e.dataTransfer.files);
+    });
+    document.getElementById("bnPreview").addEventListener("click", e => {
+      const rm = e.target.closest(".img-remove");
+      if (rm) removeBannerFormImage(Number(rm.dataset.remove));
+    });
+  }
 
   // Reset all
   document.getElementById("btnReset").addEventListener("click", () => {
@@ -614,6 +645,87 @@ function reopenOrder(id) {
   renderOrders();
   updateOrderBadge();
   toast("Đã đưa đơn hàng về trạng thái chờ");
+}
+
+// ===== Banner management (quảng cáo) =====
+// Temporary array for the currently open banner editor (saved on "Lưu banner").
+let bannerFormImages = [];
+
+function openBannerModal() {
+  bannerFormImages = getBanners().slice();
+  renderBannerPreview();
+  document.getElementById("bn-url").value = "";
+  document.getElementById("bannerModal").classList.add("show");
+}
+
+function renderBannerPreview() {
+  const preview = document.getElementById("bnPreview");
+  if (!bannerFormImages.length) {
+    preview.innerHTML = "";
+    preview.classList.remove("filled");
+    return;
+  }
+  preview.classList.add("filled");
+  preview.innerHTML = bannerFormImages.map((b, i) => {
+    const content = looksLikeImage(b)
+      ? `<img src="${b}" alt="">`
+      : `<span class="thumb-emoji">${b}</span>`;
+    return `
+      <div class="img-thumb ${i === 0 ? "is-primary" : ""}" data-idx="${i}">
+        ${content}
+        ${i === 0 ? '<div class="img-primary-label">Ảnh đầu</div>' : ""}
+        <button type="button" class="img-remove" data-remove="${i}" title="Xóa ảnh">✕</button>
+      </div>`;
+  }).join("");
+}
+
+function addBannerFromUrl() {
+  const val = document.getElementById("bn-url").value.trim();
+  if (!val) { toast("Vui lòng nhập URL hoặc emoji"); return; }
+  bannerFormImages.push(val);
+  document.getElementById("bn-url").value = "";
+  renderBannerPreview();
+}
+
+function addBannerFiles(files) {
+  const list = Array.from(files || []).filter(f => f && f.type && f.type.indexOf("image/") === 0);
+  if (!list.length) { toast("Chỉ chấp nhận file ảnh (.png, .jpg, .gif, .webp...)"); return; }
+  let remaining = list.length;
+  list.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      bannerFormImages.push(ev.target.result);
+      remaining--;
+      if (remaining === 0) {
+        renderBannerPreview();
+        toast("Đã thêm " + list.length + " ảnh banner");
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeBannerFormImage(idx) {
+  bannerFormImages.splice(idx, 1);
+  renderBannerPreview();
+}
+
+function saveBannersFromEditor() {
+  if (!bannerFormImages.length) {
+    toast("Chưa có banner nào để lưu");
+    return;
+  }
+  saveBanners(bannerFormImages);
+  document.getElementById("bannerModal").classList.remove("show");
+  toast("Đã lưu banner quảng cáo");
+}
+
+function clearAllBanners() {
+  if (!confirm("Xóa toàn bộ banner quảng cáo? Banner mặc định sẽ được khôi phục.")) return;
+  localStorage.removeItem("dnd_banners");
+  bannerFormImages = getBanners().slice();
+  renderBannerPreview();
+  toast("Đã khôi phục banner mặc định");
 }
 
 // ===== Toast =====

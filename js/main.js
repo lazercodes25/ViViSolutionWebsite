@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ensureAdmin();
   renderCategories();
   renderStats();
+  renderBanner();
   bindEvents();
   renderProducts();
   renderCart();
@@ -24,10 +25,48 @@ function renderCategories() {
 
 function renderStats() {
   const products = getProducts();
-  const totalValue = products.reduce((s, p) => s + p.price * p.stock, 0);
-  document.getElementById("statCount").textContent = products.length;
-  document.getElementById("statValue").textContent = formatPrice(totalValue);
-  document.getElementById("statStock").textContent = products.reduce((s, p) => s + p.stock, 0);
+  const el = document.getElementById("statCount");
+  if (el) el.textContent = products.length;
+}
+
+// ===== Banner slider (quảng cáo) =====
+let bannerTimer = null;
+let bannerIndex = 0;
+
+function renderBanner() {
+  const banners = getBanners();
+  const slider = document.getElementById("bannerSlider");
+  if (!slider) return;
+  if (!banners.length) {
+    slider.innerHTML = "";
+    return;
+  }
+  slider.innerHTML = banners.map((b, i) => {
+    const content = looksLikeImage(b)
+      ? `<img src="${b}" alt="Quảng cáo ${i + 1}" onerror="this.parentNode.remove()" />`
+      : `<span style="font-size:4rem">${b}</span>`;
+    return `<div class="banner-slide ${i === 0 ? "active" : ""}" data-bi="${i}">${content}</div>`;
+  }).join("");
+
+  // auto-rotate every 5 seconds
+  if (bannerTimer) clearInterval(bannerTimer);
+  if (banners.length > 1) {
+    bannerTimer = setInterval(() => {
+      bannerIndex = (bannerIndex + 1) % banners.length;
+      showBanner(bannerIndex);
+    }, 5000);
+  }
+}
+
+function showBanner(idx) {
+  const slides = document.querySelectorAll(".banner-slide");
+  slides.forEach(s => s.classList.remove("active"));
+  const target = sliderForIdx(idx);
+  if (target) target.classList.add("active");
+}
+
+function sliderForIdx(idx) {
+  return document.querySelector(`.banner-slide[data-bi="${idx}"]`);
 }
 
 function renderProducts() {
@@ -195,6 +234,13 @@ function openDetail(id) {
       ${p.stock <= 0 ? "Hết hàng" : "🛒 Thêm vào giỏ hàng"}
     </button>`;
   document.getElementById("detailModal").classList.add("show");
+  // Close button for the dynamic detail modal
+  const closeBtn = document.querySelector("#modalBody .modal-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      document.getElementById("detailModal").classList.remove("show");
+    });
+  }
   // Gallery switching
   document.querySelectorAll(".gallery-thumb").forEach(t => {
     t.addEventListener("click", () => {

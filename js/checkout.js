@@ -171,8 +171,38 @@ function placeOrder() {
   // Show success
   document.getElementById("successMsg").innerHTML =
     `Mã đơn hàng của bạn: <b>${order.code}</b><br>Tổng thanh toán: <b style="color:var(--danger)">${formatPrice(order.total)}</b>` +
-    `<br>Thanh toán: <b>${paymentName(payment)}</b>`;
+    `<br>Thanh toán: <b>${paymentName(payment)}</b><br><span style="font-size:.85rem">📍 ${address}</span>`;
+
+  // Gửi email thông báo đơn hàng (không làm hỏng luồng đặt hàng nếu lỗi)
+  sendOrderEmail(order);
+
   document.getElementById("successModal").classList.add("show");
+}
+
+// Gửi email xác nhận đơn hàng tới email nhận (xem server.js + .env)
+function sendOrderEmail(order) {
+  try {
+    if (!window.fetch) return;
+    const payload = {
+      code: order.code,
+      createdAt: order.createdAt,
+      customer: order.customer,
+      items: order.items,
+      subtotal: order.subtotal,
+      userDiscount: order.userDiscount,
+      voucherCode: order.voucherCode,
+      voucherDiscount: order.voucherDiscount,
+      shipping: order.shipping,
+      total: order.total,
+      payment: paymentName(order.payment),
+      note: order.note
+    };
+    fetch("/api/order-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).catch(() => { /* bỏ qua nếu backend chưa chạy */ });
+  } catch (e) { /* bỏ qua */ }
 }
 
 function paymentName(v) {

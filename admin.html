@@ -47,6 +47,7 @@
         <button class="abtn abtn-success" id="btnImport"><i class="fa-solid fa-file-import"></i> Nhập CSV/Excel</button>
         <button class="abtn abtn-accent" id="btnExportXlsx"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
         <button class="abtn abtn-ghost" id="btnExportCsv"><i class="fa-solid fa-file-csv"></i> Xuất CSV</button>
+        <button class="abtn abtn-warn" id="btnBanners"><i class="fa-solid fa-images"></i> Quảng cáo</button>
       </div>
     </div>
 
@@ -174,6 +175,40 @@
         <div class="auth-msg" id="admMsg"></div>
         <button class="abtn abtn-primary" id="admLoginBtn" style="width:100%"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
         <p style="font-size:.8rem;color:#6b7688;text-align:center;margin-top:.5rem">Mặc định: <b>admin</b> / <b>admin123</b></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner management modal -->
+  <div class="modal-overlay" id="bannerModal">
+    <div class="modal">
+      <button class="modal-close" id="bannerClose">✕</button>
+      <h2><i class="fa-solid fa-images"></i> Quản lý banner quảng cáo</h2>
+      <p style="font-size:.85rem;color:#6b7688;margin-bottom:1rem">
+        Banner hiển thị trên trang chủ (tự động xoay vòng). Thêm ảnh hoặc dán URL hình ảnh.
+      </p>
+      <div class="banner-editor">
+        <div class="form-group full">
+          <label>Thêm ảnh banner (URL)</label>
+          <div style="display:flex;gap:.5rem">
+            <input type="text" id="bn-url" placeholder="https://... hoặc emoji">
+            <button class="abtn abtn-primary" id="bn-add-url" style="flex:0 0 auto"><i class="fa-solid fa-plus"></i> Thêm</button>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>Hoặc tải ảnh lên</label>
+          <div class="drop-area" id="bnDropArea" style="padding:1rem">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+            <b>Kéo & thả ảnh vào đây</b> hoặc nhấp để chọn
+          </div>
+          <input type="file" id="bn-input" accept="image/png,image/jpeg,image/gif,image/webp" multiple style="display:none">
+        </div>
+        <div class="img-preview" id="bnPreview"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="abtn abtn-ghost" id="bn-cancel">Hủy</button>
+        <button class="abtn abtn-danger" id="bn-clear" style="width:auto"><i class="fa-solid fa-trash-can"></i> Xóa tất cả</button>
+        <button class="abtn abtn-success" id="bn-save"><i class="fa-solid fa-check"></i> Lưu banner</button>
       </div>
     </div>
   </div>

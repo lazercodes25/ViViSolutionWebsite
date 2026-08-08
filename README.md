@@ -49,6 +49,11 @@ Website là **tĩnh** (HTML/CSS/JS) nên deploy rất dễ. Chọn **1 trong 4**
 - **Nhập**: kéo-thả file Excel/CSV vào, xem trước rồi xác nhận.
 - **Chỉnh sửa trực tiếp** như bảng Excel (nhấp đúp vào ô).
 - **Quản lý đơn hàng** & tồn kho.
+- **Quản lý banner quảng cáo**: vào nút "Quảng cáo" để thêm/sửa/xóa ảnh banner hiển thị trên trang chủ.
+
+## 📱 Trang chủ & Thanh toán
+- Trang chủ hiển thị **số điện thoại** `0773372913` và **email** `xuantung2521@gmail.com` (thay cho thông tin tồn kho/tổng giá trị).
+- Trang thanh toán hỗ trợ **COD** (thanh toán khi nhận hàng).
 
 ## ⚠️ Lưu ý quan trọng về dữ liệu
 - Dữ liệu (sản phẩm, giỏ hàng, đơn hàng, tài khoản) lưu trong **localStorage** của Trình duyệt.

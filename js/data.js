@@ -39,6 +39,7 @@ const DEFAULT_PRODUCTS = [
 // Storage keys
 const STORAGE_KEY = "dnd_products";
 const CART_KEY = "dnd_cart";
+const BANNER_KEY = "dnd_banners";
 
 // ---- Product CRUD ----
 function getProducts() {
@@ -88,6 +89,37 @@ function ensureImagesArray(p) {
   }
   p.image = p.images[0];
   return p;
+}
+
+// ---- Banners (quảng cáo) ----
+// Banners is an array of image strings (URL or base64 data URL or emoji).
+const DEFAULT_BANNERS = [
+  "https://placehold.co/1200x400/0d47a1/ffffff?text=KHUY%E1%BA%BEN+M%C3%83I+E-SOLUTION",
+  "https://placehold.co/1200x400/ff9800/ffffff?text=Linh+ki%E1%BB%87n+%C4%91i%E1%BB%87n+t%E1%BB%AD+ch%E1%BA%A5t+cao",
+  "https://placehold.co/1200x400/2e7d32/ffffff?text=Mi%E1%BB%85n+ph%C3%AD+v%E1%BA%ADn+chuy%E1%BB%83n+t%E1%BB%AB+500k"
+];
+
+function getBanners() {
+  try {
+    const raw = localStorage.getItem(BANNER_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length) return arr;
+    }
+  } catch (e) {}
+  return clone(DEFAULT_BANNERS);
+}
+function saveBanners(banners) {
+  localStorage.setItem(BANNER_KEY, JSON.stringify(banners));
+}
+
+// ---- Product options ----
+// Each product may have an `options` array (e.g. resistor values).
+// Products without options get a single default option so the UI always shows one.
+function getProductOptions(p) {
+  if (!p) return ["Mặc định"];
+  if (Array.isArray(p.options) && p.options.length) return p.options;
+  return ["Mặc định"];
 }
 
 // ---- Cart ----
@@ -160,17 +192,17 @@ function loadSheetJS() {
 async function exportProducts(format = "xlsx") {
   const products = getProducts();
   const wsData = [
-    ["Mã SP", "Tên sản phẩm", "Danh mục", "Giá (VNĐ)", "Tồn kho", "Đơn vị", "Mô tả", "Hình (emoji/URL)", "Đánh giá"]
+    ["Mã SP", "Tên sản phẩm", "Danh mục", "Giá (VNĐ)", "Tồn kho", "Đơn vị", "Mô tả", "Đánh giá"]
   ];
 products.forEach(p => {
     wsData.push([
-      p.id, p.name, p.category, p.price, p.stock, p.unit, p.desc, getProductImages(p).join(" || "), p.rating
+      p.id, p.name, p.category, p.price, p.stock, p.unit, p.desc, p.rating
     ]);
   });
   const ws = SheetJS.utils.aoa_to_sheet(wsData);
   // Column widths for readability
   ws["!cols"] = [
-    { wch: 8 }, { wch: 32 }, { wch: 20 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 40 }, { wch: 22 }, { wch: 10 }
+    { wch: 8 }, { wch: 32 }, { wch: 20 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 40 }, { wch: 10 }
   ];
   const wb = SheetJS.utils.book_new();
   SheetJS.utils.book_append_sheet(wb, ws, "SanPham");
