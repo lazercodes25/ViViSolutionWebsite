@@ -111,39 +111,71 @@ Website đã được tích hợp **Supabase** để đồng bộ **sản phẩm
 
 > 🟢 **Giải pháp cho lỗi "tải ảnh lên nhưng mở trình duyệt ẩn danh không thấy":** ảnh trước đây được lưu dạng base64 trong localStorage của trình duyệt (chỉ tồn tại trên máy đó). Nay ảnh được upload lên Supabase Storage và lưu **URL công khai**, nên bất kỳ thiết bị/trình duyệt nào cũng tải được.
 
+> **Nhanh nhất:** chạy toàn bộ file **[`supabase-setup.sql`](supabase-setup.sql)** trong **SQL Editor** → nó tự tạo bảng + bucket + mọi chính sách RLS (bao gồm RLS cho Storage). Hoặc làm thủ công theo các bước dưới đây.
+
 ### 1. Tạo bảng trong Supabase (SQL Editor → Run)
 ```sql
 create table if not exists public.products (
   id bigint primary key,
-  raw text
+  raw jsonb
 );
 create table if not exists public.orders (
   id bigint primary key,
-  raw text
+  raw jsonb
 );
 create table if not exists public.banners (
   id bigint primary key,
-  raw text
+  raw jsonb
 );
 alter table public.products enable row level security;
 alter table public.orders enable row level security;
 alter table public.banners enable row level security;
-create policy "public read products" on public.products for select using (true);
-create policy "public read orders" on public.orders for select using (true);
-create policy "public read banners" on public.banners for select using (true);
-create policy "public insert products" on public.products for insert with check (true);
-create policy "public insert orders" on public.orders for insert with check (true);
-create policy "public insert banners" on public.banners for insert with check (true);
-create policy "public update products" on public.products for update using (true) with check (true);
-create policy "public update orders" on public.orders for update using (true) with check (true);
-create policy "public update banners" on public.banners for update using (true) with check (true);
+
+-- Cho phép anonymous đọc/ghi (để nhiều trình duyệt/máy dùng chung)
+drop policy if exists "products anon" on public.products;
+create policy "products anon" on public.products for all using (true) with check (true);
+drop policy if exists "orders anon" on public.orders;
+create policy "orders anon" on public.orders for all using (true) with check (true);
+drop policy if exists "banners anon" on public.banners;
+create policy "banners anon" on public.banners for all using (true) with check (true);
 ```
 
-### 2. Tạo bucket Storage `product-images` (đặt **public**)
-- Vào **Storage → New bucket** → tên: `product-images` → chọn **Public bucket**.
+### 2. Tạo bucket Storage `product-images` (đặt **public**) + bật RLS cho upload
+Đây là bước **bắt buộc** để upload ảnh thành công. Nếu thiếu, bạn sẽ gặp lỗi:
+`Upload ảnh lỗi 403 ... new row violates row-level security policy` (chính là lỗi bạn gặp).
+
+```sql
+-- Tạo bucket public (chạy 1 lần)
+insert into storage.buckets (id, name, public)
+values ('product-images', 'product-images', true)
+on conflict (id) do update set public = true;
+
+-- LƯU Ý: Không cần chạy "alter table storage.objects enable row level security;"
+-- vì RLS của storage.objects đã bật mặc định (bảng thuộc role supabase_storage_admin,
+-- lệnh alter sẽ báo "must be owner of table objects"). Chỉ cần tạo policy bên dưới.
+
+-- Cho phép anonymous upload ảnh vào bucket
+drop policy if exists "E-Solution upload" on storage.objects;
+create policy "E-Solution upload"
+  on storage.objects
+  for insert
+  to anon, authenticated
+  with check (bucket_id = 'product-images');
+
+-- Cho phép anonymous đọc ảnh
+drop policy if exists "E-Solution read" on storage.objects;
+create policy "E-Solution read"
+  on storage.objects
+  for select
+  to anon, authenticated
+  using (bucket_id = 'product-images');
+```
+
+> **Cách thay thế bằng giao diện:** Vào **Storage → New bucket** → tên `product-images` → chọn **Public bucket**. Sau đó vào **bucket → Policies → New policy** chọn **"Create a policy for storage.objects"** và cấp quyền **INSERT** (và SELECT/UPDATE/DELETE) cho **public**.
+
 - Trong file `js/supabase.js`, cập nhật `SB_URL` và `SB_KEY` (anon/publishable key) cho đúng project của bạn nếu khác.
 
-> **Lưu ý:** Ảnh/banner tải lên sẽ upload vào bucket này. Nếu bucket chưa tồn tại/không public, hệ thống tự động **fallback về lưu base64 cục bộ** (ảnh vẫn hiển thị trên máy đã upload nhưng không hiển thị trên trình duyệt khác). Vì vậy hãy đảm bảo bucket đúng tên và public.
+> **Lưu ý:** Ảnh/banner tải lên sẽ upload vào bucket này. Nếu bucket chưa tồn tại/không public/thiếu RLS, hệ thống tự động **fallback về lưu base64 cục bộ** (ảnh vẫn hiển thị trên máy đã upload nhưng không hiển thị trên trình duyệt khác). Vì vậy hãy đảm bảo bucket đúng tên, public, và có chính sách RLS cho phép upload.
 
 ## ⚠️ Lưu ý quan trọng về dữ liệu
 - Dữ liệu (sản phẩm, giỏ hàng, đơn hàng, tài khoản) lưu trong **localStorage** của Trình duyệt, **và được đồng bộ lên Supabase** khi có kết nối.

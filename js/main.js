@@ -27,6 +27,14 @@ function renderCategories() {
   bar.innerHTML = cats.map(c =>
     `<button class="cat-btn ${c === currentCategory ? "active" : ""}" data-cat="${c}">${c}</button>`
   ).join("");
+
+  // Populate the responsive dropdown selector (hidden on wide screens)
+  const sel = document.getElementById("catSelect");
+  if (sel) {
+    sel.innerHTML = cats.map(c =>
+      `<option value="${escapeHtml(c)}" ${c === currentCategory ? "selected" : ""}>${escapeHtml(c)}</option>`
+    ).join("");
+  }
 }
 
 function renderStats() {
@@ -170,6 +178,17 @@ function bindEvents() {
     closeCatSidebar();
   });
 
+  // Category dropdown (narrow screens)
+  const catSelect = document.getElementById("catSelect");
+  if (catSelect) {
+    catSelect.addEventListener("change", e => {
+      currentCategory = e.target.value;
+      renderCategories();
+      renderProducts();
+      closeCatSidebar();
+    });
+  }
+
   // Search
   document.getElementById("searchInput").addEventListener("input", e => {
     searchTerm = e.target.value.trim();
@@ -185,7 +204,16 @@ function bindEvents() {
     const btn = e.target.closest("button[data-action]");
     if (!btn) return;
     const id = btn.dataset.id;
-    if (btn.dataset.action === "add") addToCart(id);
+    if (btn.dataset.action === "add") {
+      const p = getProducts().find(pp => Number(pp.id) === Number(id));
+      // Nếu sản phẩm có option -> mở modal chi tiết để khách chọn option
+      // (tránh thêm nhầm option "Mặc định"). Ngược lại thêm thẳng vào giỏ.
+      if (p && getProductOptions(p).length > 1) {
+        openDetail(id);
+      } else {
+        addToCart(id);
+      }
+    }
     if (btn.dataset.action === "view") openDetail(id);
   });
   // card click -> detail (unless add button)
@@ -250,17 +278,19 @@ function openDetail(id) {
 // Options (biến thể sản phẩm)
   const opts = getProductOptions(p);
   const hasMultiOpts = opts.length > 1;
-  const optHtml = hasMultiOpts
+const optHtml = hasMultiOpts
     ? `<div class="opt-select">
-        <label>Chọn phân loại:</label>
+        <label>Chọn phân loại</label>
+        <div class="opt-chips">
         ${opts.map((o, i) => {
           const os = optionStock(p, o);
           const disabled = os <= 0 ? "disabled" : "";
           return `<button type="button" class="opt-chip ${i === 0 ? "active" : ""}" data-opt="${i}" data-ostock="${os}" ${disabled}>
             ${escapeHtml(optionLabel(o))}
-            ${os <= 0 ? '<span class="opt-soldout">(hết)</span>' : ""}
+            ${os <= 0 ? '<span class="opt-soldout">hết</span>' : ""}
           </button>`;
         }).join("")}
+        </div>
       </div>`
     : "";
   document.getElementById("modalBody").innerHTML = `

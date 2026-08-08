@@ -177,11 +177,53 @@ body {
   z-index: 170;
 }
 
+/* Category dropdown (shown on narrow screens, hidden on wide) */
+.cat-drop-wrap {
+  display: none;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 1200px;
+  margin: 0.75rem 1rem 0;
+}
+.cat-drop-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary);
+  white-space: nowrap;
+}
+.cat-drop {
+  flex: 1;
+  max-width: 480px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.cat-drop:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(13,71,161,0.12); }
+
 /* Move product area to leave room for the fixed sidebar on wide screens */
-@media (min-width: 769px) {
+@media (min-width: 992px) {
   .hero, .container, .site-footer { margin-left: 240px; }
   .site-header { padding-left: 2rem; }
   .cat-toggle { display: none; }
+  .cat-drop-wrap { display: none; }
+}
+
+/* Medium screens (769–991px): hide the fixed sidebar, show the category dropdown */
+@media (min-width: 769px) and (max-width: 991px) {
+  .cat-sidebar { transform: translateX(-240px); box-shadow: none; }
+  .cat-toggle { display: none; }
+  .cat-drop-wrap { display: flex; }
+  .hero, .container, .site-footer { margin-left: 0; }
 }
 
 /* ===== Hero ===== */
@@ -334,6 +376,78 @@ body {
 .modal .m-price { font-size: 1.5rem; color: var(--danger); font-weight: 800; margin: 0.5rem 0; }
 .modal .m-desc { color: var(--muted); margin-bottom: 0.8rem; }
 
+/* ===== Product option selection (chọn phân loại) ===== */
+.opt-select {
+  background: linear-gradient(135deg, #f6f9ff, #eef4ff);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin: 0.8rem 0;
+}
+.opt-select > label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.6rem;
+}
+.opt-select > label::before { content: "🗂️"; font-size: 0.95rem; }
+.opt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.opt-chip {
+  border: 2px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  border-radius: 24px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 1px 3px rgba(13,71,161,0.06);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  line-height: 1;
+}
+.opt-chip:hover {
+  border-color: var(--primary-light);
+  background: #f0f6ff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(13,71,161,0.12);
+}
+.opt-chip.active {
+  border-color: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(13,71,161,0.3);
+}
+.opt-chip.active::before { content: "✓ "; font-weight: 800; }
+.opt-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f1f3f7;
+  border-color: var(--border);
+  color: var(--muted);
+  transform: none;
+  box-shadow: none;
+}
+.opt-chip:disabled:hover { background: #f1f3f7; border-color: var(--border); }
+.opt-soldout {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--danger);
+  background: #fde5e0;
+  border-radius: 10px;
+  padding: 0.05rem 0.4rem;
+}
+.opt-chip.active .opt-soldout { color: #fff; background: rgba(255,255,255,0.25); }
+
 #toast {
   position: fixed;
   bottom: 20px;
@@ -457,8 +571,9 @@ body {
   .checkout-wrap { padding: 1rem; }
   .ck-form { grid-template-columns: 1fr; }
 
-  /* Category off-canvas sidebar on mobile */
-  .cat-toggle { display: inline-flex; }
+  /* Category: show dropdown, hide off-canvas toggle on mobile */
+  .cat-toggle { display: none; }
+  .cat-drop-wrap { display: flex; }
   .cat-sidebar { transform: translateX(-240px); box-shadow: none; }
   .cat-sidebar.open { transform: translateX(0); box-shadow: 2px 0 18px rgba(0,0,0,0.2); }
   .cat-scrim.show { display: block; }

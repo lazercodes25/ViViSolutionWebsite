@@ -268,6 +268,31 @@ function bindEvents() {
 document.getElementById("btnFormSave").addEventListener("click", saveForm);
   document.getElementById("btnFormCancel").addEventListener("click", closeFormModal);
 
+  // Option editor: add, remove rows
+  document.getElementById("optAddBtn").addEventListener("click", () => {
+    formOptions.push({ label: "", price: "", stock: "" });
+    renderOptEditor();
+  });
+  document.getElementById("optEditor").addEventListener("click", e => {
+    const rm = e.target.closest(".opt-remove");
+    if (!rm) return;
+    const idx = Array.from(document.querySelectorAll("#optEditor .opt-row")).indexOf(rm.closest(".opt-row"));
+    if (idx >= 0) {
+      formOptions.splice(idx, 1);
+      renderOptEditor();
+    }
+  });
+  document.getElementById("optEditor").addEventListener("input", e => {
+    const row = e.target.closest(".opt-row");
+    if (!row) return;
+    const idx = Array.from(document.querySelectorAll("#optEditor .opt-row")).indexOf(row);
+    if (idx < 0) return;
+    if (!formOptions[idx]) formOptions[idx] = { label: "", price: "", stock: "" };
+    if (e.target.classList.contains("opt-label")) formOptions[idx].label = e.target.value;
+    if (e.target.classList.contains("opt-price")) formOptions[idx].price = e.target.value;
+    if (e.target.classList.contains("opt-stock")) formOptions[idx].stock = e.target.value;
+  });
+
   // Form multi-image upload: click, change, drag & drop, remove
   const imgDrop = document.getElementById("imgDropArea");
   const imgInput = document.getElementById("f-image-input");
@@ -317,6 +342,8 @@ function fillCategorySelect(sel, selected) {
 // ===== Form modal (add/edit) =====
 // Temporary images array for the currently open form (not saved until saveForm).
 let formImages = [];
+// Temporary options array for the currently open form (not saved until saveForm).
+let formOptions = [];
 
 function openFormModal(id) {
   editingId = null;
@@ -339,17 +366,58 @@ function openFormModal(id) {
     fillCategorySelect(document.getElementById("f-category"), p.category);
     document.getElementById("formTitle").textContent = "Sửa sản phẩm";
     formImages = getProductImages(p).slice();
+    formOptions = (p.options && Array.isArray(p.options) ? p.options : []).map(o =>
+      typeof o === "string"
+        ? { label: o, price: p.price || "", stock: p.stock || "" }
+        : { label: o.label || "", price: (o.price != null && o.price !== "") ? o.price : "", stock: (o.stock != null && o.stock !== "") ? o.stock : "" }
+    );
   } else {
     document.getElementById("formTitle").textContent = "Thêm sản phẩm mới";
     formImages = [];
+    formOptions = [];
   }
   renderFormImagePreview();
+  renderOptEditor();
   document.getElementById("formModal").classList.add("show");
 }
 
 function closeFormModal() {
   document.getElementById("formModal").classList.remove("show");
   formImages = [];
+  formOptions = [];
+}
+
+// ===== Option editor (biến thể sản phẩm) =====
+// Render the option rows (label + price + stock + remove) into the form.
+function renderOptEditor() {
+  const editor = document.getElementById("optEditor");
+  if (!editor) return;
+  if (!formOptions.length) {
+    editor.innerHTML = `<div style="font-size:.85rem;color:var(--muted)">Chưa có tùy chọn nào. Bấm "Thêm tùy chọn" để thêm giá trị (VD: 10Ω, 100Ω, 1kΩ...).</div>`;
+    return;
+  }
+  editor.innerHTML = formOptions.map((o, i) => `
+    <div class="opt-row" data-idx="${i}">
+      <input type="text" class="opt-label" placeholder="Nhãn (VD: 10Ω)" value="${escapeHtml(o.label || "")}">
+      <input type="number" class="opt-price" placeholder="Giá (VNĐ)" value="${o.price != null ? o.price : ""}" min="0">
+      <input type="number" class="opt-stock" placeholder="Tồn kho" value="${o.stock != null ? o.stock : ""}" min="0">
+      <button type="button" class="opt-remove" data-remove="${i}" title="Xóa tùy chọn">✕</button>
+    </div>`).join("");
+}
+
+// Read current values from the option editor inputs back into formOptions (live).
+function readOptRows() {
+  const rows = document.querySelectorAll("#optEditor .opt-row");
+  const next = [];
+  rows.forEach(r => {
+    const label = r.querySelector(".opt-label").value.trim();
+    const priceInput = r.querySelector(".opt-price").value;
+    const stockInput = r.querySelector(".opt-stock").value;
+    const price = priceInput === "" ? 0 : Number(priceInput) || 0;
+    const stock = stockInput === "" ? 0 : Number(stockInput) || 0;
+    if (label) next.push({ label, price, stock });
+  });
+  return next;
 }
 
 // Render the image thumbnails in the form (with remove buttons)
@@ -428,6 +496,8 @@ function saveForm() {
   const products = getProducts();
   const images = formImages.length ? formImages : ["🔧"];
 
+  const opts = readOptRows();
+
   const data = {
     name,
     category: document.getElementById("f-category").value,
@@ -439,6 +509,8 @@ function saveForm() {
     image: images[0],
     rating: Number(document.getElementById("f-rating").value) || 4.5
   };
+  // Chỉ ghi các option thực sự có nhãn (>=2 mới hiển thị dropdown). >=1 tùy chọn vẫn được lưu.
+  if (opts.length) data.options = opts;
 
   if (editingId) {
     const idx = products.findIndex(p => Number(p.id) === Number(editingId));
