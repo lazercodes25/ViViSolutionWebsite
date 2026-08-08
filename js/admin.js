@@ -23,10 +23,86 @@ function bindAuth() {
   document.getElementById("adm-password").addEventListener("keydown", e => {
     if (e.key === "Enter") doAdminLogin();
   });
+
+  // Account dropdown toggle
+  const toggle = document.getElementById("accountToggle");
+  const dropdown = document.getElementById("accountDropdown");
+  toggle.addEventListener("click", e => {
+    e.stopPropagation();
+    dropdown.classList.toggle("show");
+  });
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".account-menu")) dropdown.classList.remove("show");
+  });
+
+  // Change password
+  document.getElementById("changePassBtn").addEventListener("click", () => {
+    dropdown.classList.remove("show");
+    openPassModal();
+  });
+  document.getElementById("passCancelBtn").addEventListener("click", closePassModal);
+  document.getElementById("passModal").addEventListener("click", e => {
+    if (e.target.id === "passModal") closePassModal();
+  });
+  document.getElementById("passSaveBtn").addEventListener("click", doChangePassword);
+  document.getElementById("pass-confirm").addEventListener("keydown", e => {
+    if (e.key === "Enter") doChangePassword();
+  });
+
+  // Logout
   document.getElementById("logoutBtn").addEventListener("click", () => {
+    dropdown.classList.remove("show");
     logout();
     location.reload();
   });
+}
+
+// ===== Change password =====
+function openPassModal() {
+  document.getElementById("pass-current").value = "";
+  document.getElementById("pass-new").value = "";
+  document.getElementById("pass-confirm").value = "";
+  const msg = document.getElementById("passMsg");
+  msg.className = "auth-msg";
+  msg.textContent = "";
+  document.getElementById("passModal").classList.add("show");
+  document.getElementById("pass-current").focus();
+}
+
+function closePassModal() {
+  document.getElementById("passModal").classList.remove("show");
+}
+
+function doChangePassword() {
+  const user = currentUser();
+  if (!user) return;
+  const current = document.getElementById("pass-current").value;
+  const next = document.getElementById("pass-new").value;
+  const confirm = document.getElementById("pass-confirm").value;
+  const msgEl = document.getElementById("passMsg");
+
+  if (!current || !next || !confirm) {
+    msgEl.className = "auth-msg err";
+    msgEl.textContent = "Vui lòng điền đầy đủ thông tin.";
+    return;
+  }
+  if (next !== confirm) {
+    msgEl.className = "auth-msg err";
+    msgEl.textContent = "Mật khẩu mới không khớp.";
+    return;
+  }
+  const res = changePassword(user.username, current, next);
+  if (!res.ok) {
+    msgEl.className = "auth-msg err";
+    msgEl.textContent = res.msg;
+    return;
+  }
+  msgEl.className = "auth-msg ok";
+  msgEl.textContent = "Đổi mật khẩu thành công!";
+  setTimeout(() => {
+    closePassModal();
+    toast("Mật khẩu đã được đổi thành công");
+  }, 600);
 }
 
 function doAdminLogin() {
@@ -57,7 +133,7 @@ function doAdminLogin() {
 function showAdminContent() {
   const user = currentUser();
   document.getElementById("adminUserLabel").textContent = "👤 " + user.name;
-  document.getElementById("logoutBtn").style.display = "";
+  document.getElementById("accountToggle").style.display = "";
   renderStats();
   renderTable();
   updateOrderBadge();

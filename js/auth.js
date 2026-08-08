@@ -81,6 +81,18 @@ function logout() {
   clearSession();
 }
 
+// Change password for the currently logged-in user
+function changePassword(username, currentPwd, newPwd) {
+  const users = getUsers();
+  const u = users.find(x => x.username.toLowerCase() === username.toLowerCase());
+  if (!u) return { ok: false, msg: "Không tìm thấy tài khoản." };
+  if (u.password !== currentPwd) return { ok: false, msg: "Mật khẩu hiện tại không đúng." };
+  if (!newPwd || newPwd.length < 6) return { ok: false, msg: "Mật khẩu mới phải có ít nhất 6 ký tự." };
+  u.password = newPwd;
+  saveUsers(users);
+  return { ok: true };
+}
+
 // User discount: user accounts get 5% off
 function userDiscount() {
   return isLoggedIn() && !isAdmin() ? 0.05 : 0;

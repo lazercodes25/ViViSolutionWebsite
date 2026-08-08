@@ -22,8 +22,18 @@
         <input type="text" id="searchInput" placeholder="Tìm sản phẩm...">
         <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
       </div>
-<div class="header-actions">
+      <div class="header-actions">
         <button class="icon-btn" id="authBtn"><i class="fa-solid fa-user"></i> <span id="authLabel">Đăng nhập</span></button>
+        <div class="auth-menu" id="authMenu" style="display:none">
+          <button class="icon-btn auth-toggle" id="authToggle">
+            <i class="fa-solid fa-user"></i> <span id="authLabel2">Tài khoản</span>
+            <i class="fa-solid fa-chevron-down" style="font-size:.7rem"></i>
+          </button>
+          <div class="auth-dropdown" id="authDropdown">
+            <a href="javascript:void(0)" id="changePassBtn"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+            <a href="javascript:void(0)" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+          </div>
+        </div>
         <button class="icon-btn cart-btn" id="cartBtn">
           <i class="fa-solid fa-cart-shopping"></i>
           <span class="cart-count" id="cartQty">0</span>
@@ -117,12 +127,40 @@
           <label>Số điện thoại</label>
           <input type="text" id="a-phone" placeholder="0905 123 456">
         </div>
-        <div>
+<div>
           <label>Mật khẩu</label>
           <input type="password" id="a-password" placeholder="••••••••">
         </div>
+        <div class="reg-only">
+          <label>Xác nhận mật khẩu</label>
+          <input type="password" id="a-password2" placeholder="Nhập lại mật khẩu">
+        </div>
         <div class="auth-msg" id="authMsg"></div>
         <button class="btn btn-primary" id="authSubmit" style="width:100%">Đăng nhập</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change password modal -->
+  <div class="modal-overlay" id="passModal">
+    <div class="modal">
+      <button class="modal-close" id="passClose">✕</button>
+      <h2><i class="fa-solid fa-key"></i> Đổi mật khẩu</h2>
+      <div class="auth-form" id="authForm-pass">
+        <div>
+          <label>Mật khẩu hiện tại</label>
+          <input type="password" id="pass-current" placeholder="Mật khẩu hiện tại">
+        </div>
+        <div>
+          <label>Mật khẩu mới</label>
+          <input type="password" id="pass-new" placeholder="Mật khẩu mới (ít nhất 6 ký tự)">
+        </div>
+        <div>
+          <label>Xác nhận mật khẩu mới</label>
+          <input type="password" id="pass-confirm" placeholder="Xác nhận mật khẩu mới">
+        </div>
+        <div class="auth-msg" id="passMsg"></div>
+        <button class="btn btn-primary" id="passSaveBtn" style="width:100%"><i class="fa-solid fa-check"></i> Lưu mật khẩu</button>
       </div>
     </div>
   </div>

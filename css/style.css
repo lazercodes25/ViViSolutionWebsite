@@ -100,6 +100,39 @@ body {
 }
 .admin-link a { color: #fff; text-decoration: none; }
 
+/* ===== Account dropdown (homepage header) ===== */
+.auth-menu { position: relative; display: inline-flex; }
+.auth-toggle { display: inline-flex; align-items: center; gap: 0.4rem; }
+.auth-dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  min-width: 190px;
+  z-index: 300;
+  overflow: hidden;
+}
+.auth-dropdown.show { display: block; }
+.auth-dropdown a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text);
+  background: #fff;
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+.auth-dropdown a:last-child { border-bottom: none; }
+.auth-dropdown a i { width: 18px; text-align: center; color: var(--muted); }
+.auth-dropdown a:hover { background: #eef4ff; color: var(--primary); }
+.auth-dropdown a:hover i { color: var(--primary); }
+
 /* ===== Category sidebar (left) ===== */
 .cat-toggle {
   display: none;

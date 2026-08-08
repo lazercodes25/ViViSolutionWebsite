@@ -17,9 +17,17 @@
       </div>
     </div>
     <div class="group" style="display:flex;gap:.5rem;align-items:center">
-      <span id="adminUserLabel" style="font-size:.9rem"></span>
+      <div class="account-menu">
+        <button class="account-toggle" id="accountToggle" style="display:none">
+          <span id="adminUserLabel"></span>
+          <i class="fa-solid fa-chevron-down" style="font-size:.7rem"></i>
+        </button>
+        <div class="account-dropdown" id="accountDropdown">
+          <a href="javascript:void(0)" id="changePassBtn"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+          <a href="javascript:void(0)" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+        </div>
+      </div>
       <a href="index.html"><i class="fa-solid fa-store"></i> Cửa hàng</a>
-      <a href="javascript:void(0)" id="logoutBtn" style="display:none"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
     </div>
   </header>
 
@@ -183,7 +191,32 @@
         </div>
         <div class="auth-msg" id="admMsg"></div>
         <button class="abtn abtn-primary" id="admLoginBtn" style="width:100%"><i class="fa-solid fa-right-to-bracket"></i> Đăng nhập</button>
-        <p style="font-size:.8rem;color:#6b7688;text-align:center;margin-top:.5rem">Mặc định: <b>admin</b> / <b>admin123</b></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change password modal -->
+  <div class="modal-overlay" id="passModal">
+    <div class="modal" style="max-width:420px">
+      <h2><i class="fa-solid fa-key"></i> Đổi mật khẩu</h2>
+      <div class="auth-form">
+        <div>
+          <label>Mật khẩu hiện tại</label>
+          <input type="password" id="pass-current" placeholder="Mật khẩu hiện tại" autocomplete="off">
+        </div>
+        <div>
+          <label>Mật khẩu mới</label>
+          <input type="password" id="pass-new" placeholder="Mật khẩu mới" autocomplete="off">
+        </div>
+        <div>
+          <label>Xác nhận mật khẩu mới</label>
+          <input type="password" id="pass-confirm" placeholder="Xác nhận mật khẩu mới" autocomplete="off">
+        </div>
+        <div class="auth-msg" id="passMsg"></div>
+        <button class="abtn abtn-primary" id="passSaveBtn" style="width:100%"><i class="fa-solid fa-check"></i> Lưu mật khẩu</button>
+      </div>
+      <div class="modal-actions">
+        <button class="abtn abtn-ghost" id="passCancelBtn">Hủy</button>
       </div>
     </div>
   </div>

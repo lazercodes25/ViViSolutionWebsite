@@ -248,11 +248,91 @@ document.getElementById("cartItems").addEventListener("click", e => {
 
 document.getElementById("checkoutBtn").addEventListener("click", checkout);
 
-  // Auth
+// Auth
   document.getElementById("authBtn").addEventListener("click", openAuthModal);
   document.getElementById("authClose").addEventListener("click", () => document.getElementById("authModal").classList.remove("show"));
   document.getElementById("authSubmit").addEventListener("click", submitAuth);
   document.getElementById("authModal").addEventListener("click", e => { if (e.target.id === "authModal") e.target.classList.remove("show"); });
+
+  // Account dropdown
+  const authToggle = document.getElementById("authToggle");
+  const authDropdown = document.getElementById("authDropdown");
+  if (authToggle) {
+    authToggle.addEventListener("click", e => {
+      e.stopPropagation();
+      authDropdown.classList.toggle("show");
+    });
+  }
+  document.addEventListener("click", e => {
+    if (authDropdown && !e.target.closest(".auth-menu")) authDropdown.classList.remove("show");
+  });
+
+  // Change password
+  document.getElementById("changePassBtn").addEventListener("click", () => {
+    if (authDropdown) authDropdown.classList.remove("show");
+    openPassModal();
+  });
+  document.getElementById("passClose").addEventListener("click", closePassModal);
+  document.getElementById("passSaveBtn").addEventListener("click", doChangePassword);
+  document.getElementById("passModal").addEventListener("click", e => { if (e.target.id === "passModal") closePassModal(); });
+  document.getElementById("pass-confirm").addEventListener("keydown", e => { if (e.key === "Enter") doChangePassword(); });
+
+  // Logout
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    if (authDropdown) authDropdown.classList.remove("show");
+    logout();
+    updateAuthUI();
+    renderProducts();
+    toast("Đã đăng xuất");
+  });
+}
+
+// ===== Change password =====
+function openPassModal() {
+  document.getElementById("pass-current").value = "";
+  document.getElementById("pass-new").value = "";
+  document.getElementById("pass-confirm").value = "";
+  const msg = document.getElementById("passMsg");
+  msg.className = "auth-msg";
+  msg.textContent = "";
+  document.getElementById("passModal").classList.add("show");
+  document.getElementById("pass-current").focus();
+}
+
+function closePassModal() {
+  document.getElementById("passModal").classList.remove("show");
+}
+
+function doChangePassword() {
+  const user = currentUser();
+  if (!user) return;
+  const current = document.getElementById("pass-current").value;
+  const next = document.getElementById("pass-new").value;
+  const confirm = document.getElementById("pass-confirm").value;
+  const msgEl = document.getElementById("passMsg");
+
+  if (!current || !next || !confirm) {
+    msgEl.className = "auth-msg err";
+    msgEl.textContent = "Vui lòng điền đầy đủ thông tin.";
+    return;
+  }
+  if (next !== confirm) {
+    msgEl.className = "auth-msg err";
+    msgEl.textContent = "Mật khẩu mới không khớp.";
+    return;
+  }
+  const res = changePassword(user.username, current, next);
+  if (!res.ok) {
+    msgEl.className = "auth-msg err";
+    msgEl.textContent = res.msg;
+    return;
+  }
+  msgEl.className = "auth-msg ok";
+  msgEl.textContent = "Đổi mật khẩu thành công!";
+  setTimeout(() => {
+    closePassModal();
+    toast("Mật khẩu đã được đổi thành công");
+  }, 600);
 }
 
 // ===== Product detail =====
@@ -481,11 +561,22 @@ let authMode = "login";
 
 function updateAuthUI() {
   const user = currentUser();
-  const label = document.getElementById("authLabel");
+  const authBtn = document.getElementById("authBtn");
+  const authMenu = document.getElementById("authMenu");
   if (user) {
-    label.textContent = user.name + " (" + (user.role === "admin" ? "Admin" : "User") + ")";
+    // Show account dropdown menu
+    if (authBtn) authBtn.style.display = "none";
+    if (authMenu) {
+      authMenu.style.display = "";
+      document.getElementById("authLabel2").textContent = "👤 " + user.name + (user.role === "admin" ? " (Admin)" : "");
+    }
   } else {
-    label.textContent = "Đăng nhập";
+    // Show login button
+    if (authMenu) authMenu.style.display = "none";
+    if (authBtn) {
+      authBtn.style.display = "";
+      document.getElementById("authLabel").textContent = "Đăng nhập";
+    }
   }
   // Chỉ hiện nút "Quản trị" khi đã đăng nhập với tài khoản admin
   const adminLink = document.getElementById("adminLink");
@@ -497,13 +588,9 @@ function updateAuthUI() {
 function openAuthModal() {
   const user = currentUser();
   if (user) {
-    // Logged in -> offer logout
-    if (confirm("Bạn đang đăng nhập là " + user.name + ".\nNhấn OK để đăng xuất.")) {
-      logout();
-      updateAuthUI();
-      renderProducts();
-      toast("Đã đăng xuất");
-    }
+    // Logged in -> toggle the account dropdown
+    const dropdown = document.getElementById("authDropdown");
+    if (dropdown) dropdown.classList.toggle("show");
     return;
   }
   authMode = "login";
@@ -516,8 +603,8 @@ function switchAuth(mode) {
   document.getElementById("authTitle").textContent = mode === "login" ? "Đăng nhập" : "Đăng ký";
   document.getElementById("tabLogin").classList.toggle("active", mode === "login");
   document.getElementById("tabRegister").classList.toggle("active", mode === "register");
-  // Show name/phone only for register
-  document.querySelectorAll("#authForm .reg-only").forEach(el => el.style.display = mode === "register" ? "" : "none");
+// Show name/phone/password-confirm only for register
+  document.querySelectorAll("#authForm .reg-only").forEach(el => el.style.display = mode === "register" ? "block" : "none");
   document.getElementById("authSubmit").textContent = mode === "login" ? "Đăng nhập" : "Đăng ký";
   document.getElementById("authMsg").textContent = "";
 }
@@ -545,13 +632,24 @@ function submitAuth() {
       updateAuthUI();
       toast("Xin chào, " + res.user.name + "!");
     }, 600);
-  } else {
+} else {
     // register
     const name = document.getElementById("a-name").value.trim();
     const phone = document.getElementById("a-phone").value.trim();
+    const password2 = document.getElementById("a-password2").value.trim();
     if (!name) {
       msgEl.className = "auth-msg err";
       msgEl.textContent = "Vui lòng nhập họ & tên";
+      return;
+    }
+    if (password.length < 6) {
+      msgEl.className = "auth-msg err";
+      msgEl.textContent = "Mật khẩu phải có ít nhất 6 ký tự";
+      return;
+    }
+    if (password !== password2) {
+      msgEl.className = "auth-msg err";
+      msgEl.textContent = "Mật khẩu xác nhận không khớp";
       return;
     }
     const res = registerUser(username, password, name, phone);
