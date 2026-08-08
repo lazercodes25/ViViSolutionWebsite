@@ -1,0 +1,16 @@
+{
+  "name": "esolution-website",
+  "version": "1.0.0",
+  "description": "Website bán linh kiện điện tử - Điện tử E-Solution Đà Nẵng (có backend gửi email đơn hàng)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.13",
+    "dotenv": "^16.4.5"
+  }
+}
+

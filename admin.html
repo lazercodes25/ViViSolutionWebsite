@@ -48,6 +48,7 @@
         <button class="abtn abtn-accent" id="btnExportXlsx"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
         <button class="abtn abtn-ghost" id="btnExportCsv"><i class="fa-solid fa-file-csv"></i> Xuất CSV</button>
         <button class="abtn abtn-warn" id="btnBanners"><i class="fa-solid fa-images"></i> Quảng cáo</button>
+        <button class="abtn abtn-ghost" id="btnSbCheck"><i class="fa-solid fa-cloud"></i> Kiểm tra kết nối</button>
       </div>
     </div>
 
@@ -227,6 +228,18 @@
       <button class="modal-close" id="ordersClose">✕</button>
       <h2><i class="fa-solid fa-truck"></i> Đơn hàng</h2>
       <div id="ordersList" style="margin-top:.5rem"></div>
+    </div>
+  </div>
+
+  <!-- Supabase connection check modal -->
+  <div class="modal-overlay" id="sbCheckModal">
+    <div class="modal" style="max-width:640px">
+      <button class="modal-close" id="sbCheckClose">✕</button>
+      <h2><i class="fa-solid fa-cloud"></i> Kết quả kiểm tra kết nối Supabase</h2>
+      <div id="sbCheckList" style="margin-top:.5rem;max-height:60vh;overflow:auto"></div>
+      <div class="modal-actions">
+        <button class="abtn abtn-ghost" id="sbCheckCloseBtn">Đóng</button>
+      </div>
     </div>
   </div>
 

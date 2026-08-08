@@ -111,12 +111,19 @@ function getProducts() {
   return localProducts();
 }
 
+// Lưu lỗi đồng bộ Supabase cuối cùng (để admin biết nguyên nhân thật).
+let _lastSbError = null;
+function getLastSbError() { return _lastSbError; }
+
 function saveProducts(products) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
   _productsCache = products;
   // Đồng bộ lên Supabase (không await để không chặn UI)
   if (typeof sbFetch === "function") {
-    sbSaveProducts(products).catch(() => {});
+    sbSaveProducts(products).catch(e => {
+      _lastSbError = e && e.message ? e.message : String(e);
+      console.error("[Supabase] saveProducts:", _lastSbError);
+    });
   }
 }
 
@@ -165,7 +172,9 @@ const DEFAULT_BANNERS = [
   "https://placehold.co/1200x400/2e7d32/ffffff?text=Mi%E1%BB%85n+ph%C3%AD+v%E1%BA%ADn+chuy%E1%BB%83n+t%E1%BB%AB+500k"
 ];
 
+let _bannersCache = null;
 function getBanners() {
+  if (_bannersCache && _bannersCache.length) return _bannersCache;
   try {
     const raw = localStorage.getItem(BANNER_KEY);
     if (raw) {
@@ -177,6 +186,7 @@ function getBanners() {
 }
 function saveBanners(banners) {
   localStorage.setItem(BANNER_KEY, JSON.stringify(banners));
+  _bannersCache = banners;
   if (typeof sbFetch === "function") {
     sbSaveBanners(banners).catch(() => {});
   }
@@ -185,7 +195,10 @@ async function getBannersAsync() {
   try {
     if (typeof sbFetch === "function") {
       const remote = await sbLoadBanners();
-      if (remote && remote.length) return remote;
+      if (remote && remote.length) {
+        _bannersCache = remote;
+        return remote;
+      }
     }
   } catch (e) {}
   return getBanners();

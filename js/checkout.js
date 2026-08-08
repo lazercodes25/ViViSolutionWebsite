@@ -2,7 +2,11 @@
 
 let appliedVoucher = null; // { discount, name }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Nạp dữ liệu sản phẩm dùng chung từ Supabase (để tồn kho/giá luôn đúng) trước khi render.
+  try {
+    await getProductsAsync();
+  } catch (e) { /* fallback localStorage */ }
   initCheckout();
 });
 

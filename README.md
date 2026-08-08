@@ -102,11 +102,53 @@ Bạn có thể đổi `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` tươn
 - Trên **màn hình lớn (máy tính)**: danh mục nằm cố định ở **cột trái** (Tất cả / Vi xử lý / Bo mạch ...).
 - Trên **điện thoại**: danh mục thu gọn thành nút **"☰ Danh mục"**; bấm vào để mở panel danh mục từ bên trái, chọn xong sẽ tự đóng.
 
+## ☁️ Đồng bộ dữ liệu dùng chung qua Supabase (sản phẩm, ảnh, banner, đơn hàng)
+
+Website đã được tích hợp **Supabase** để đồng bộ **sản phẩm + ảnh + banner + đơn hàng** giữa các trình duyệt/máy (kể cả cửa sổ ẩn danh). Nhờ đó:
+- Ảnh quản trị viên tải lên được lưu vào **Supabase Storage** (URL công khai) → **trình duyệt ẩn danh / máy khác đều hiển thị ảnh**.
+- Danh sách sản phẩm, banner, đơn hàng được lưu trên đám mây dùng chung.
+- Vẫn có **fallback localStorage** nếu không kết nối được Supabase.
+
+> 🟢 **Giải pháp cho lỗi "tải ảnh lên nhưng mở trình duyệt ẩn danh không thấy":** ảnh trước đây được lưu dạng base64 trong localStorage của trình duyệt (chỉ tồn tại trên máy đó). Nay ảnh được upload lên Supabase Storage và lưu **URL công khai**, nên bất kỳ thiết bị/trình duyệt nào cũng tải được.
+
+### 1. Tạo bảng trong Supabase (SQL Editor → Run)
+```sql
+create table if not exists public.products (
+  id bigint primary key,
+  raw text
+);
+create table if not exists public.orders (
+  id bigint primary key,
+  raw text
+);
+create table if not exists public.banners (
+  id bigint primary key,
+  raw text
+);
+alter table public.products enable row level security;
+alter table public.orders enable row level security;
+alter table public.banners enable row level security;
+create policy "public read products" on public.products for select using (true);
+create policy "public read orders" on public.orders for select using (true);
+create policy "public read banners" on public.banners for select using (true);
+create policy "public insert products" on public.products for insert with check (true);
+create policy "public insert orders" on public.orders for insert with check (true);
+create policy "public insert banners" on public.banners for insert with check (true);
+create policy "public update products" on public.products for update using (true) with check (true);
+create policy "public update orders" on public.orders for update using (true) with check (true);
+create policy "public update banners" on public.banners for update using (true) with check (true);
+```
+
+### 2. Tạo bucket Storage `product-images` (đặt **public**)
+- Vào **Storage → New bucket** → tên: `product-images` → chọn **Public bucket**.
+- Trong file `js/supabase.js`, cập nhật `SB_URL` và `SB_KEY` (anon/publishable key) cho đúng project của bạn nếu khác.
+
+> **Lưu ý:** Ảnh/banner tải lên sẽ upload vào bucket này. Nếu bucket chưa tồn tại/không public, hệ thống tự động **fallback về lưu base64 cục bộ** (ảnh vẫn hiển thị trên máy đã upload nhưng không hiển thị trên trình duyệt khác). Vì vậy hãy đảm bảo bucket đúng tên và public.
+
 ## ⚠️ Lưu ý quan trọng về dữ liệu
-- Dữ liệu (sản phẩm, giỏ hàng, đơn hàng, tài khoản) lưu trong **localStorage** của Trình duyệt.
-- **Admin** dùng trên máy này → dữ liệu kho/đơn hàng nằm ở máy này → hoạt động tốt.
-- **Khách hàng online** sẽ có giỏ hàng riêng của họ. Đơn hàng khách đặt sẽ lưu trên trình duyệt khách đó — **không tự đồng bộ về máy admin**.
-  - Nếu cần mọi đơn hàng gom về máy admin, cần thêm backend/database (ví dụ Google Sheets + Apps Script, hoặc backend nhỏ miễn phí). Hỏi để được hỗ trợ.
+- Dữ liệu (sản phẩm, giỏ hàng, đơn hàng, tài khoản) lưu trong **localStorage** của Trình duyệt, **và được đồng bộ lên Supabase** khi có kết nối.
+- **Admin** dùng trên máy này → dữ liệu kho/đơn hàng được đồng bộ lên đám mây → có thể xem trên máy/trình duyệt khác hoặc cửa sổ ẩn danh.
+- Tài khoản người dùng (đăng ký) vẫn lưu trong localStorage của từng trình duyệt.
 
 ## 📁 Cấu trúc
 ```

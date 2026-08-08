@@ -1,11 +1,17 @@
 /* ===== Điện tử E-Solution Đà Nẵng - Storefront ===== */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   ensureAdmin();
+  bindEvents();
+  // Nạp dữ liệu dùng chung từ Supabase (sản phẩm + banner) để mọi thiết bị/trình duyệt
+  // đều thấy đúng danh sách sản phẩm và ảnh do quản trị viên tải lên.
+  try {
+    await getProductsAsync();
+    await getBannersAsync();
+  } catch (e) { /* fallback localStorage đã có sẵn */ }
   renderCategories();
   renderStats();
   renderBanner();
-  bindEvents();
   renderProducts();
   renderCart();
   updateAuthUI();

@@ -3,9 +3,14 @@
 let searchTerm = "";
 let editingId = null;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   ensureAdmin();
   bindAuth();
+  // Nạp dữ liệu dùng chung từ Supabase để admin cũng quản lý đúng danh sách đã đồng bộ.
+  try {
+    await getProductsAsync();
+    await getBannersAsync();
+  } catch (e) { /* fallback localStorage */ }
   if (isAdmin()) {
     showAdminContent();
   } else {
@@ -200,9 +205,20 @@ function bindEvents() {
 // Import button
   document.getElementById("btnImport").addEventListener("click", () => openImportModal());
 
+  // Kiểm tra kết nối Supabase (hiện lỗi thật nếu không đồng bộ được)
+  const sbBtn = document.getElementById("btnSbCheck");
+  if (sbBtn) sbBtn.addEventListener("click", runSbCheck);
+
 // Orders
   document.getElementById("btnOrders").addEventListener("click", openOrdersModal);
   document.getElementById("ordersClose").addEventListener("click", () => document.getElementById("ordersModal").classList.remove("show"));
+
+  // Supabase check modal close
+  document.getElementById("sbCheckClose").addEventListener("click", () => document.getElementById("sbCheckModal").classList.remove("show"));
+  document.getElementById("sbCheckCloseBtn").addEventListener("click", () => document.getElementById("sbCheckModal").classList.remove("show"));
+  document.getElementById("sbCheckModal").addEventListener("click", e => {
+    if (e.target.id === "sbCheckModal") document.getElementById("sbCheckModal").classList.remove("show");
+  });
 
   // Banner management
   document.getElementById("btnBanners").addEventListener("click", openBannerModal);
@@ -365,22 +381,36 @@ function looksLikeImage(img) {
     (/^data:image\//i.test(img) || /^https?:\/\//i.test(img) || /^blob:/i.test(img));
 }
 
-// Read selected/dropped image files into base64 and append to formImages.
+// Upload 1 file lên Supabase Storage -> public URL.
+// Fallback về base64 nếu storage không khả dụng (kéo-thả vẫn nhanh nhưng ảnh chỉ local).
+async function uploadToCloud(file, folder, alt) {
+  if (typeof sbUploadImage === "function") {
+    try {
+      return await sbUploadImage(file, folder || "products");
+    } catch (e) {
+      // Fallback base64
+    }
+  }
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => resolve(alt || "🔧");
+    reader.readAsDataURL(file);
+  });
+}
+
+// Read selected/dropped image files, upload lên cloud (hoặc base64 fallback) rồi append vào formImages.
 function addImageFiles(files) {
   const list = Array.from(files || []).filter(f => f && f.type && f.type.indexOf("image/") === 0);
   if (!list.length) { toast("Chỉ chấp nhận file ảnh (.png, .jpg, .gif, .webp...)"); return; }
-  let remaining = list.length;
-  list.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      formImages.push(ev.target.result);
-      remaining--;
-      if (remaining === 0) {
-        renderFormImagePreview();
-        toast("Đã thêm " + list.length + " ảnh");
-      }
-    };
-    reader.readAsDataURL(file);
+  const total = list.length;
+  list.forEach(async (file, i) => {
+    const url = await uploadToCloud(file, "products", "🔧");
+    formImages.push(url);
+    if (formImages.length >= total) {
+      renderFormImagePreview();
+      toast("Đã thêm " + total + " ảnh");
+    }
   });
 }
 
@@ -486,8 +516,9 @@ function commitInline(id, colIdx, value) {
   }
 }
 
-// ===== Upload image (base64, multiple) =====
-// Opens a file picker allowing multiple images; appends them to the product's images array.
+// ===== Upload image (cloud, multiple) =====
+// Opens a file picker allowing multiple images; uploads to Supabase Storage and
+// appends the public URLs to the product's images array.
 function uploadImage(id) {
   const input = document.createElement("input");
   input.type = "file";
@@ -501,21 +532,17 @@ function uploadImage(id) {
     if (idx < 0) return;
     const existing = getProductImages(products[idx]);
     const newImgs = [];
-    let remaining = files.length;
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        newImgs.push(ev.target.result);
-        remaining--;
-        if (remaining === 0) {
-          products[idx].images = existing.concat(newImgs);
-          products[idx].image = products[idx].images[0];
-          saveProducts(products);
-          renderTable();
-          toast("Đã thêm " + newImgs.length + " ảnh");
-        }
-      };
-      reader.readAsDataURL(file);
+    const total = files.length;
+    files.forEach(async (file) => {
+      const url = await uploadToCloud(file, "products", "🔧");
+      newImgs.push(url);
+      if (newImgs.length >= total) {
+        products[idx].images = existing.concat(newImgs);
+        products[idx].image = products[idx].images[0];
+        saveProducts(products);
+        renderTable();
+        toast("Đã thêm " + newImgs.length + " ảnh");
+      }
     });
   };
   input.click();
@@ -690,18 +717,14 @@ function addBannerFromUrl() {
 function addBannerFiles(files) {
   const list = Array.from(files || []).filter(f => f && f.type && f.type.indexOf("image/") === 0);
   if (!list.length) { toast("Chỉ chấp nhận file ảnh (.png, .jpg, .gif, .webp...)"); return; }
-  let remaining = list.length;
-  list.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      bannerFormImages.push(ev.target.result);
-      remaining--;
-      if (remaining === 0) {
-        renderBannerPreview();
-        toast("Đã thêm " + list.length + " ảnh banner");
-      }
-    };
-    reader.readAsDataURL(file);
+  const total = list.length;
+  list.forEach(async (file) => {
+    const url = await uploadToCloud(file, "banners", "🖼️");
+    bannerFormImages.push(url);
+    if (bannerFormImages.length >= total) {
+      renderBannerPreview();
+      toast("Đã thêm " + total + " ảnh banner");
+    }
   });
 }
 
@@ -726,6 +749,40 @@ function clearAllBanners() {
   bannerFormImages = getBanners().slice();
   renderBannerPreview();
   toast("Đã khôi phục banner mặc định");
+}
+
+// ===== Kiểm tra kết nối Supabase =====
+async function runSbCheck() {
+  const msgs = [];
+  msgs.push("🔍 Đang kiểm tra kết nối Supabase...");
+  toast(msgs[0]);
+  if (typeof sbCheckConnection !== "function") {
+    msgs.push("⚠️ Không tìm thấy hàm sbCheckConnection (thiếu js/supabase.js?)");
+    showSbCheckResult(msgs);
+    return;
+  }
+  try {
+    const r = await sbCheckConnection();
+    msgs.pop();
+    msgs.push("✅ Truy cập bảng (REST): " + (r.rest ? "OK" : "LỖI"));
+    if (r.errors.rest) msgs.push("   • " + r.errors.rest);
+    msgs.push("✅ Upload Storage: " + (r.storage ? "OK" : "LỖI"));
+    if (r.errors.storage) msgs.push("   • " + r.errors.storage);
+    if (getLastSbError && getLastSbError()) msgs.push("ℹ️ Lỗi lưu gần nhất: " + getLastSbError());
+    msgs.push(r.ok ? "🎉 Kết nối thành công — dữ liệu sẽ được đồng bộ lên đám mây." : "❌ Có vấn đề kết nối. Xem chi tiết bên dưới để sửa.");
+  } catch (e) {
+    msgs.push("❌ Ngoại lệ: " + (e && e.message ? e.message : e));
+  }
+  showSbCheckResult(msgs);
+}
+
+function showSbCheckResult(lines) {
+  const list = document.getElementById("sbCheckList");
+  if (!list) return;
+  list.innerHTML = lines.map(l =>
+    `<div style="padding:.35rem .5rem;border-bottom:1px dashed var(--border);font-size:.9rem;white-space:pre-wrap">${escapeHtml(l)}</div>`
+  ).join("");
+  document.getElementById("sbCheckModal").classList.add("show");
 }
 
 // ===== Toast =====

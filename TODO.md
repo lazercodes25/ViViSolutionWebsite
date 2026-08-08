@@ -9,11 +9,14 @@
 - Cải thiện hero responsive + danh mục sidebar + tài liệu email
 
 ## Phần A — Supabase đồng bộ ảnh + sản phẩm + đơn hàng dùng chung
-- [ ] Tạo `js/supabase.js` (helper REST + storage dùng fetch)
-- [ ] Cập nhật `js/data.js` đồng bộ products/orders/banners với Supabase (kèm fallback localStorage)
-- [ ] Cập nhật admin upload ảnh → Supabase Storage lấy public URL
-- [ ] Cập nhật banner → Supabase Storage
-- [ ] Ghi hướng dẫn setup Supabase (bucket, SQL bảng) vào README
+- [x] Tạo `js/supabase.js` (helper REST + storage dùng fetch)
+- [x] Cập nhật `js/data.js` đồng bộ products/orders/banners với Supabase (kèm fallback localStorage)
+- [x] Admin upload ảnh → Supabase Storage lấy public URL (thay base64 cục bộ)
+- [x] Banner upload → Supabase Storage
+- [x] Cập nhật `js/main.js` nạp dữ liệu dùng chung từ Supabase khi mở trang
+- [x] Cập nhật `js/checkout.js` nạp sản phẩm từ Supabase khi mở trang
+- [x] Thêm nút "Kiểm tra kết nối" hiển thị lỗi thật (CORS/auth/RLS/bucket)
+- [x] Ghi hướng dẫn setup Supabase (bucket, SQL bảng) vào README
 
 ## Phần B — Option sản phẩm
 - [ ] `admin.html`: thêm trình soạn "Tùy chọn" (nhãn + giá + tồn kho)
