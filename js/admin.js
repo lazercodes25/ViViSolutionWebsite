@@ -171,7 +171,7 @@ tbody.innerHTML = filtered.map(p => {
     const imgs = getProductImages(p);
     const primary = imgs[0] || "🔧";
     const imgHtml = looksLikeImage(primary)
-      ? `<img src="${primary}" alt="" onerror="this.style.display='none';this.nextSibling.textContent='🔧'" />`
+      ? `<img src="${primary}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextSibling.textContent='🔧'" />`
       : `<span>${primary}</span>`;
     const imgCount = imgs.length > 1 ? `<div style="font-size:.68rem;color:var(--muted);margin-top:2px">+${imgs.length - 1}</div>` : "";
     return `
@@ -508,7 +508,7 @@ function renderFormImagePreview() {
   preview.innerHTML = formImages.map((img, i) => {
     const isPrimary = i === 0;
     const content = looksLikeImage(img)
-      ? `<img src="${img}" alt="">`
+      ? `<img src="${img}" alt="Ảnh ${i + 1}" loading="lazy" decoding="async">`
       : `<span class="thumb-emoji">${img}</span>`;
     return `
       <div class="img-thumb ${isPrimary ? "is-primary" : ""}" data-idx="${i}">
@@ -843,7 +843,7 @@ function renderBannerPreview() {
   preview.classList.add("filled");
   preview.innerHTML = bannerFormImages.map((b, i) => {
     const content = looksLikeImage(b)
-      ? `<img src="${b}" alt="">`
+      ? `<img src="${b}" alt="Banner quảng cáo" loading="lazy" decoding="async">`
       : `<span class="thumb-emoji">${b}</span>`;
     return `
       <div class="img-thumb ${i === 0 ? "is-primary" : ""}" data-idx="${i}">

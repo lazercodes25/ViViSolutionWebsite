@@ -102,7 +102,7 @@ function renderProducts() {
   grid.innerHTML = filtered.map(p => {
     const primary = getPrimaryImage(p);
     const imgHtml = looksLikeImage(primary)
-      ? `<img src="${primary}" alt="${p.name}" onerror="this.onerror=null;this.replaceWith('🔧')" />`
+      ? `<img src="${primary}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.replaceWith('🔧')" />`
       : `<span>${primary}</span>`;
     const st = stockStatus(p.stock);
     const stars = renderStars(p.rating);
@@ -342,14 +342,14 @@ function openDetail(id) {
   const st = stockStatus(p.stock);
   const imgs = getProductImages(p);
   const imgHtml = looksLikeImage(imgs[0])
-    ? `<img src="${imgs[0]}" style="max-height:220px;margin:0 auto" alt="${p.name}" id="galleryMainImg" />`
+    ? `<img src="${imgs[0]}" style="max-height:220px;margin:0 auto" alt="${escapeHtml(p.name)}" decoding="async" id="galleryMainImg" />`
     : `<div style="font-size:5rem;text-align:center">${imgs[0] || "🔧"}</div>`;
   // Thumbnail gallery (if multiple images)
   const thumbs = imgs.length > 1
     ? `<div class="gallery-thumbs" style="display:flex;gap:.5rem;justify-content:center;margin-top:.6rem;flex-wrap:wrap">
         ${imgs.map((img, i) => {
           const tContent = looksLikeImage(img)
-            ? `<img src="${img}" alt="">`
+            ? `<img src="${img}" alt="${escapeHtml(p.name)} - ảnh ${i + 1}" loading="lazy" decoding="async">`
             : `<span>${img}</span>`;
           return `<button type="button" class="gallery-thumb ${i === 0 ? "active" : ""}" data-gidx="${i}" style="width:56px;height:56px;border:2px solid ${i === 0 ? "var(--primary)" : "transparent"};border-radius:8px;overflow:hidden;cursor:pointer;background:#f1f4fa;display:flex;align-items:center;justify-content:center">${tContent}</button>`;
         }).join("")}
@@ -519,7 +519,7 @@ function renderCart() {
     if (!p) return "";
     const primary = getPrimaryImage(p);
     const img = looksLikeImage(primary)
-      ? `<img src="${primary}" alt="" />` : `<span style="font-size:1.3rem">${primary}</span>`;
+      ? `<img src="${primary}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" />` : `<span style="font-size:1.3rem">${primary}</span>`;
     const unitPrice = (typeof c.optPrice === "number" && c.optPrice > 0) ? c.optPrice : (Number(p.price) || 0);
     const optLabel = c.optLabel || "Mặc định";
     qty += c.qty;
