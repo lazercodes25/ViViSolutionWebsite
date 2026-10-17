@@ -1,4 +1,4 @@
-/* ===== Điện tử E-Solution Đà Nẵng - Admin ===== */
+/* ===== ViVi Solution Đà Nẵng - Admin ===== */
 
 let searchTerm = "";
 let editingId = null;

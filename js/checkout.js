@@ -1,4 +1,4 @@
-/* ===== Điện tử E-Solution Đà Nẵng - Checkout ===== */
+/* ===== ViVi Solution Đà Nẵng - Checkout ===== */
 
 let appliedVoucher = null; // { discount, name }
 

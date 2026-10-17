@@ -1,4 +1,4 @@
-/* ===== Điện tử E-Solution Đà Nẵng - Backend (send email on order) ===== */
+/* ===== ViVi Solution Đà Nẵng - Backend (send email on order) ===== */
 
 require("dotenv").config();
 const path = require("path");
@@ -70,7 +70,7 @@ app.post("/api/order-email", async (req, res) => {
     });
 
     await transporter.sendMail({
-      from: `"Cửa hàng E-Solution" <${process.env.SMTP_USER || "xuantung2521@gmail.com"}>`,
+      from: `"Cửa hàng ViVi Solution" <${process.env.SMTP_USER || "xuantung2521@gmail.com"}>`,
       to: process.env.ORDER_RECIPIENT || "xuantung2521@gmail.com",
       subject: `Đơn hàng mới ${order.code || ""}`,
       text: lines.join("\n"),

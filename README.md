@@ -1,4 +1,4 @@
-# Điện tử E-Solution Đà Nẵng — Website bán linh kiện điện tử
+# ViVi Solution Đà Nẵng — Website bán linh kiện điện tử
 
 Website bán linh kiện điện tử hoàn chỉnh với trang quản trị hỗ trợ nhập/xuất danh sách hàng & tồn kho giống bảng Excel.
 
@@ -155,16 +155,16 @@ on conflict (id) do update set public = true;
 -- lệnh alter sẽ báo "must be owner of table objects"). Chỉ cần tạo policy bên dưới.
 
 -- Cho phép anonymous upload ảnh vào bucket
-drop policy if exists "E-Solution upload" on storage.objects;
-create policy "E-Solution upload"
+drop policy if exists "ViVi Solution upload" on storage.objects;
+create policy "ViVi Solution upload"
   on storage.objects
   for insert
   to anon, authenticated
   with check (bucket_id = 'product-images');
 
 -- Cho phép anonymous đọc ảnh
-drop policy if exists "E-Solution read" on storage.objects;
-create policy "E-Solution read"
+drop policy if exists "ViVi Solution read" on storage.objects;
+create policy "ViVi Solution read"
   on storage.objects
   for select
   to anon, authenticated

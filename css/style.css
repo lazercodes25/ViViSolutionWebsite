@@ -1,4 +1,4 @@
-/* ===== Điện tử E-Solution Đà Nẵng - Style ===== */
+/* ===== ViVi Solution Đà Nẵng - Style ===== */
 :root {
   --primary: #0d47a1;
   --primary-dark: #0a346b;
@@ -49,6 +49,7 @@ body {
   cursor: pointer;
 }
 .brand i { font-size: 1.8rem; color: var(--accent); }
+.site-logo { width: 190px; height: 64px; object-fit: contain; display: block; border-radius: 8px; }
 .brand h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: 0.5px; }
 .brand small { display: block; font-size: 0.7rem; opacity: 0.85; font-weight: 400; }
 .search-box {
@@ -620,6 +621,7 @@ body {
   .brand h1 { font-size: 1.05rem; }
   .brand small { font-size: 0.62rem; }
   .brand i { font-size: 1.4rem; }
+  .site-logo { width: 125px; height: 48px; }
   .icon-btn { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
   .header-actions { gap: 0.5rem; }
   .hero { padding: 1.5rem 1rem; }

@@ -1,4 +1,4 @@
-/* ===== Điện tử E-Solution Đà Nẵng - Storefront ===== */
+/* ===== ViVi Solution Đà Nẵng - Storefront ===== */
 
 document.addEventListener("DOMContentLoaded", async () => {
   ensureAdmin();

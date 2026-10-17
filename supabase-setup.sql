@@ -1,5 +1,5 @@
 -- ============================================================
---  E-SOLUTION — Thiết lập Supabase lần đầu (chạy 1 lần)
+--  VIVI SOLUTION — Thiết lập Supabase lần đầu (chạy 1 lần)
 --  Bảng điều khiển: Supabase Dashboard -> SQL Editor -> New query
 -- ============================================================
 
@@ -66,8 +66,8 @@ on conflict (id) do update set public = true;
 --    Chỉ cần tạo chính sách (policy) bên dưới là đủ.
 
 -- 6) Chính sách cho phép anonymous (không cần đăng nhập) upload ảnh
-drop policy if exists "E-Solution: upload ảnh" on storage.objects;
-create policy "E-Solution: upload ảnh"
+drop policy if exists "ViVi Solution: upload ảnh" on storage.objects;
+create policy "ViVi Solution: upload ảnh"
   on storage.objects
   for insert
   to anon, authenticated
@@ -75,24 +75,24 @@ create policy "E-Solution: upload ảnh"
 -- insert(*(bucket_id='product-images')::text)
 
 -- 7) Chính sách cho phép anonymous đọc ảnh (bucket public)
-drop policy if exists "E-Solution: đọc ảnh" on storage.objects;
-create policy "E-Solution: đọc ảnh"
+drop policy if exists "ViVi Solution: đọc ảnh" on storage.objects;
+create policy "ViVi Solution: đọc ảnh"
   on storage.objects
   for select
   to anon, authenticated
   using (bucket_id = 'product-images');
 
 -- 8) Chính sách cho phép anonymous sửa/xoá ảnh (tuỳ chọn)
-drop policy if exists "E-Solution: sửa ảnh" on storage.objects;
-create policy "E-Solution: sửa ảnh"
+drop policy if exists "ViVi Solution: sửa ảnh" on storage.objects;
+create policy "ViVi Solution: sửa ảnh"
   on storage.objects
   for update
   to anon, authenticated
   using (bucket_id = 'product-images')
   with check (bucket_id = 'product-images');
 
-drop policy if exists "E-Solution: xoá ảnh" on storage.objects;
-create policy "E-Solution: xoá ảnh"
+drop policy if exists "ViVi Solution: xoá ảnh" on storage.objects;
+create policy "ViVi Solution: xoá ảnh"
   on storage.objects
   for delete
   to anon, authenticated

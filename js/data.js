@@ -1,4 +1,4 @@
-/* ===== Điện tử E-Solution Đà Nẵng - Data & Excel engine ===== */
+/* ===== ViVi Solution Đà Nẵng - Data & Excel engine ===== */
 
 // Categories
 const CATEGORIES = [
@@ -134,7 +134,7 @@ function ensureImagesArray(p) {
 // ---- Banners (quảng cáo) ----
 // Banners is an array of image strings (URL or base64 data URL or emoji).
 const DEFAULT_BANNERS = [
-  "https://placehold.co/1200x400/0d47a1/ffffff?text=KHUY%E1%BA%BEN+M%C3%83I+E-SOLUTION",
+  "https://placehold.co/1200x400/0d47a1/ffffff?text=KHUY%E1%BA%BEN+M%C3%83I+VIVI+SOLUTION",
   "https://placehold.co/1200x400/ff9800/ffffff?text=Linh+ki%E1%BB%87n+%C4%91i%E1%BB%87n+t%E1%BB%AD+ch%E1%BA%A5t+cao",
   "https://placehold.co/1200x400/2e7d32/ffffff?text=Mi%E1%BB%85n+ph%C3%AD+v%E1%BA%ADn+chuy%E1%BB%83n+t%E1%BB%AB+500k"
 ];

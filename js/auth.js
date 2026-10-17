@@ -1,4 +1,4 @@
-/* ===== Điện tử E-Solution Đà Nẵng - Authentication & Users ===== */
+/* ===== ViVi Solution Đà Nẵng - Authentication & Users ===== */
 
 const USERS_KEY = "dnd_users";
 const SESSION_KEY = "dnd_session";

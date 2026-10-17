@@ -1,4 +1,4 @@
-/* ===== Admin - Điện tử E-Solution Đà Nẵng ===== */
+/* ===== Admin - ViVi Solution Đà Nẵng ===== */
 :root {
   --primary: #0d47a1;
   --primary-dark: #0a346b;
@@ -36,6 +36,7 @@ body {
 }
 .admin-header .brand { display: flex; align-items: center; gap: 0.6rem; }
 .admin-header .brand i { font-size: 1.6rem; color: var(--accent); }
+.admin-logo { width: 150px; height: 54px; object-fit: contain; display: block; border-radius: 7px; }
 .admin-header h1 { font-size: 1.15rem; }
 .admin-header a { color: #fff; text-decoration: none; font-size: 0.9rem; background: rgba(255,255,255,0.15); padding: 0.4rem 0.9rem; border-radius: 8px; }
 

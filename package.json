@@ -1,7 +1,7 @@
 {
-  "name": "esolution-website",
+  "name": "vivi-solution-website",
   "version": "1.0.0",
-  "description": "Website bán linh kiện điện tử - Điện tử E-Solution Đà Nẵng (có backend gửi email đơn hàng)",
+  "description": "Website bán linh kiện điện tử - ViVi Solution Đà Nẵng (có backend gửi email đơn hàng)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
