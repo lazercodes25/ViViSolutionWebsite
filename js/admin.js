@@ -190,7 +190,7 @@ tbody.innerHTML = filtered.map(p => {
           <span class="cell actions">
             <button class="icon-mini icon-edit" data-act="edit" title="Sửa thông tin">✏️</button>
             <button class="icon-mini icon-upload" data-act="img" title="Tải ảnh lên">🖼️</button>
-            <button class="icon-mini icon-cycle" data-act="reset" title="Khôi phục mặc định">↺</button>
+            <button class="icon-mini icon-cycle" data-act="reset" title="Xóa sản phẩm">↺</button>
             <button class="icon-mini icon-del" data-act="del" title="Xóa">🗑️</button>
           </span>
         </td>
@@ -327,13 +327,13 @@ function bindEvents() {
     });
   }
 
-  // Reset all
+  // Clear all products
   document.getElementById("btnReset").addEventListener("click", () => {
-    if (confirm("Khôi phục toàn bộ danh sách về dữ liệu mặc định? Dữ liệu hiện tại sẽ bị thay thế.")) {
+    if (confirm("Xóa toàn bộ sản phẩm? Thao tác này không thể hoàn tác.")) {
       resetProducts();
       renderStats();
       renderTable();
-      toast("Đã khôi phục dữ liệu mặc định");
+      toast("Đã xóa toàn bộ sản phẩm");
     }
   });
 

@@ -39,6 +39,21 @@ async function sbLoadProducts() {
 }
 
 async function sbSaveProducts(products) {
+  // Đồng bộ đầy đủ danh sách, bao gồm các sản phẩm đã bị xóa ở admin.
+  const existing = await sbLoadProducts();
+  const currentIds = new Set(products.map(p => Number(p.id)));
+  const deletedIds = existing
+    .map(p => Number(p.id))
+    .filter(id => !currentIds.has(id));
+
+  if (deletedIds.length) {
+    await sbFetch("/rest/v1/products?id=in.(" + deletedIds.join(",") + ")", {
+      method: "DELETE"
+    });
+  }
+
+  if (!products.length) return [];
+
   // Upsert: mỗi sản phẩm 1 dòng theo id
   const rows = products.map(p => ({ id: Number(p.id), raw: JSON.stringify(p) }));
   const data = await sbFetch("/rest/v1/products", {
@@ -47,14 +62,6 @@ async function sbSaveProducts(products) {
     body: rows
   });
   return data;
-}
-
-// Nếu bảng products rỗng, seed từ dữ liệu local
-async function sbSeedProductsIfEmpty(products) {
-  const existing = await sbLoadProducts();
-  if (existing && existing.length) return existing;
-  await sbSaveProducts(products);
-  return products;
 }
 
 // ---- Orders table ----
