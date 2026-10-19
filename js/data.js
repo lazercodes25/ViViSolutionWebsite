@@ -2,7 +2,7 @@
 
 // Categories
 const CATEGORIES = [
-  "Compo Tự lắp",
+  "Combo Tự lắp",
   "Robot hoàn thiện",
   "XiaoZhi78 AI",
   "Vỏ in 3D",
@@ -275,9 +275,9 @@ function shippingFee(subtotal) {
 
 // Known vouchers
 const VOUCHERS = {
-  "DN10": { discount: 0.10, name: "Giảm 10%" },
-  "DN20": { discount: 0.20, name: "Giảm 20%" },
-  "DN30": { discount: 0.30, name: "Giảm 30%" }
+  "DN10": { discount: 0.00, name: "Sắp ra mắt giảm 10%" },
+  "DN20": { discount: 0.00, name: "Sắp ra mắt giảm 20%" },
+  "DN30": { discount: 0.00, name: "Sắp ra mắt giảm 30%" }
 };
 
 function applyVoucher(code) {

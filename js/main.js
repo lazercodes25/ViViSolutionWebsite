@@ -795,7 +795,7 @@ document.addEventListener("click", e => {
   }, { passive: true });
 })();
 
-// ===== Ô "Compo Tự lắp / Robot hoàn thiện / XiaoZhi78 AI" -> lọc danh mục sản phẩm =====
+// ===== Ô "Combo Tự lắp / Robot hoàn thiện / XiaoZhi78 AI" -> lọc danh mục sản phẩm =====
 document.addEventListener("click", e => {
   const pick = e.target.closest && e.target.closest("[data-cat-pick]");
   if (!pick) return;
