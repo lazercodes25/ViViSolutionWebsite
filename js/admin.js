@@ -179,7 +179,7 @@ tbody.innerHTML = filtered.map(p => {
         <td><span class="cell">${p.id}</span></td>
         <td><span class="cell" style="min-width:140px">${escapeHtml(p.name)}</span></td>
         <td><span class="cell" style="min-width:110px">${escapeHtml(p.category)}</span></td>
-        <td><span class="cell input-price" >${p.price}</span></td>
+        <td><span class="cell input-price" >${p.price}</span>${Number(p.oldPrice) > Number(p.price) ? `<div class="old-mini" title="Giá gốc gạch ngang (sửa trong nút ✏️)"><s>${p.oldPrice}</s> -${discountPercent(p.oldPrice, p.price)}%</div>` : ""}</td>
         <td><span class="cell input-stock">${p.stock}</span></td>
         <td><span class="cell" style="min-width:70px">${escapeHtml(p.unit)}</span></td>
         <td><span class="badge ${st.cls}">${st.label}</span></td>
@@ -199,7 +199,7 @@ tbody.innerHTML = filtered.map(p => {
 
   // empty state
   if (!filtered.length) {
-    tbody.innerHTML = `<tr><td colspan="11"><div style="padding:2rem;color:#6b7688">Không có dữ liệu phù hợp.</div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11"><div style="padding:2rem;color:var(--muted)">Không có dữ liệu phù hợp.</div></td></tr>`;
   }
 }
 
@@ -346,7 +346,7 @@ document.getElementById("btnFormSave").addEventListener("click", saveForm);
 
   // Option editor: add, remove rows
   document.getElementById("optAddBtn").addEventListener("click", () => {
-    formOptions.push({ label: "", price: "", stock: "" });
+    formOptions.push({ label: "", price: "", oldPrice: "", stock: "" });
     renderOptEditor();
   });
   document.getElementById("optEditor").addEventListener("click", e => {
@@ -366,6 +366,7 @@ document.getElementById("btnFormSave").addEventListener("click", saveForm);
     if (!formOptions[idx]) formOptions[idx] = { label: "", price: "", stock: "" };
     if (e.target.classList.contains("opt-label")) formOptions[idx].label = e.target.value;
     if (e.target.classList.contains("opt-price")) formOptions[idx].price = e.target.value;
+    if (e.target.classList.contains("opt-old")) formOptions[idx].oldPrice = e.target.value;
     if (e.target.classList.contains("opt-stock")) formOptions[idx].stock = e.target.value;
   });
 
@@ -425,7 +426,7 @@ function openFormModal(id) {
   editingId = null;
   const f = document.getElementById("productForm");
   f.reset();
-  fillCategorySelect(document.getElementById("f-category"), CATEGORIES[0]);
+  fillCategorySelect(document.getElementById("f-category"), "Vi xử lý");
   document.getElementById("f-unit").value = "cái";
   document.getElementById("f-rating").value = "4.5";
 
@@ -435,6 +436,7 @@ function openFormModal(id) {
     editingId = id;
     document.getElementById("f-name").value = p.name || "";
     document.getElementById("f-price").value = p.price || "";
+    document.getElementById("f-oldprice").value = p.oldPrice || "";
     document.getElementById("f-stock").value = p.stock || "";
     document.getElementById("f-unit").value = p.unit || "cái";
     document.getElementById("f-desc").value = p.desc || "";
@@ -445,7 +447,7 @@ function openFormModal(id) {
     formOptions = (p.options && Array.isArray(p.options) ? p.options : []).map(o =>
       typeof o === "string"
         ? { label: o, price: p.price || "", stock: p.stock || "" }
-        : { label: o.label || "", price: (o.price != null && o.price !== "") ? o.price : "", stock: (o.stock != null && o.stock !== "") ? o.stock : "" }
+        : { label: o.label || "", price: (o.price != null && o.price !== "") ? o.price : "", oldPrice: o.oldPrice || "", stock: (o.stock != null && o.stock !== "") ? o.stock : "" }
     );
   } else {
     document.getElementById("formTitle").textContent = "Thêm sản phẩm mới";
@@ -472,10 +474,11 @@ function renderOptEditor() {
     editor.innerHTML = `<div style="font-size:.85rem;color:var(--muted)">Chưa có tùy chọn nào. Bấm "Thêm tùy chọn" để thêm giá trị (VD: 10Ω, 100Ω, 1kΩ...).</div>`;
     return;
   }
-  editor.innerHTML = formOptions.map((o, i) => `
+  editor.innerHTML = `<div class="opt-head"><span>Nhãn</span><span>Giá bán</span><span>Giá gốc (gạch)</span><span>Tồn kho</span><span></span></div>` + formOptions.map((o, i) => `
     <div class="opt-row" data-idx="${i}">
       <input type="text" class="opt-label" placeholder="Nhãn (VD: 10Ω)" value="${escapeHtml(o.label || "")}">
-      <input type="number" class="opt-price" placeholder="Giá (VNĐ)" value="${o.price != null ? o.price : ""}" min="0">
+      <input type="number" class="opt-price" placeholder="Giá bán" value="${o.price != null ? o.price : ""}" min="0">
+      <input type="number" class="opt-old" placeholder="Giá gốc (gạch)" value="${o.oldPrice ? o.oldPrice : ""}" min="0" title="Giá gốc gạch ngang, để trống nếu không giảm">
       <input type="number" class="opt-stock" placeholder="Tồn kho" value="${o.stock != null ? o.stock : ""}" min="0">
       <button type="button" class="opt-remove" data-remove="${i}" title="Xóa tùy chọn">✕</button>
     </div>`).join("");
@@ -489,9 +492,11 @@ function readOptRows() {
     const label = r.querySelector(".opt-label").value.trim();
     const priceInput = r.querySelector(".opt-price").value;
     const stockInput = r.querySelector(".opt-stock").value;
+    const oldInput = r.querySelector(".opt-old") ? r.querySelector(".opt-old").value : "";
     const price = priceInput === "" ? 0 : Number(priceInput) || 0;
     const stock = stockInput === "" ? 0 : Number(stockInput) || 0;
-    if (label) next.push({ label, price, stock });
+    const oldPrice = Number(oldInput) || 0;
+    if (label) next.push(oldPrice > price ? { label, price, oldPrice, stock } : { label, price, stock });
   });
   return next;
 }
@@ -569,6 +574,8 @@ function saveForm() {
   if (!name) { toast("Vui lòng nhập tên sản phẩm"); return; }
   const price = Number(document.getElementById("f-price").value) || 0;
   const stock = Number(document.getElementById("f-stock").value) || 0;
+  const oldPrice = Number(document.getElementById("f-oldprice").value) || 0;
+  if (oldPrice && oldPrice <= price) { toast("Giá gốc phải lớn hơn giá bán (hoặc để trống)"); return; }
   const products = getProducts();
   const images = formImages.length ? formImages : ["🔧"];
 
@@ -587,6 +594,7 @@ function saveForm() {
   };
   // Chỉ ghi các option thực sự có nhãn (>=2 mới hiển thị dropdown). >=1 tùy chọn vẫn được lưu.
   if (opts.length) data.options = opts;
+  if (oldPrice > price) data.oldPrice = oldPrice;
 
   if (editingId) {
     const idx = products.findIndex(p => Number(p.id) === Number(editingId));
@@ -623,7 +631,7 @@ function makeEditable(cell) {
   if (isActions) return;
   const input = document.createElement("input");
   input.value = current;
-  input.style.cssText = "width:100%;border:2px solid #0d47a1;border-radius:6px;padding:4px;font-size:.88rem;";
+  input.style.cssText = "width:100%;border:2px solid var(--cyan);border-radius:6px;padding:4px;background:var(--surface-2);color:var(--fg);font-size:.88rem;";
   cell.textContent = "";
   cell.appendChild(input);
   input.focus();
@@ -738,7 +746,7 @@ async function handleFile(file) {
       Kiểm tra và nhấn <b>"Xác nhận nhập"</b> để lưu.
     </div>`;
   } catch (err) {
-    document.getElementById("importSummary").innerHTML = `<div class="import-summary" style="color:#d32f2f">❌ ${err.message}</div>`;
+    document.getElementById("importSummary").innerHTML = `<div class="import-summary" style="color:var(--red-fg)">❌ ${err.message}</div>`;
   }
 }
 
@@ -776,9 +784,9 @@ function renderOrders() {
     if (o.voucherCode) discounts.push("Voucher " + escapeHtml(o.voucherCode) + ": -" + formatPrice(o.voucherDiscount));
     const discHtml = discounts.length ? `<div style="color:var(--success);font-size:.85rem">${discounts.join(" | ")}</div>` : "";
     return `
-      <div style="border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem;background:#fafcff">
+      <div style="border:1px solid var(--border);border-radius:10px;padding:1rem;margin-bottom:1rem;background:var(--surface)">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">
-          <b style="color:var(--primary)">#${escapeHtml(o.code)}</b>
+          <b style="color:var(--cyan-fg);font-family:var(--font-mono)">#${escapeHtml(o.code)}</b>
           <span style="font-size:.82rem;color:var(--muted)">${o.createdAt}</span>
           <span class="badge ${o.status === 'pending' ? 'empty' : 'ok'}">${o.status === 'pending' ? '⏳ Chờ xử lý' : '✅ Đã xử lý'}</span>
         </div>
@@ -787,11 +795,11 @@ function renderOrders() {
           📞 ${escapeHtml(o.customer.phone)} | 📍 ${escapeHtml(o.customer.address)}<br>
           🏦 ${paymentLabel(o.payment)}
         </div>
-        <div style="background:#f1f4fa;border-radius:8px;padding:.5rem .7rem;margin:.5rem 0">${items}</div>
-        ${o.note ? `<div style="font-size:.85rem;color:#7a5b1e">📝 Lưu ý: ${escapeHtml(o.note)}</div>` : ""}
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:.5rem .7rem;margin:.5rem 0">${items}</div>
+        ${o.note ? `<div style="font-size:.85rem;color:var(--orange-fg)">📝 Lưu ý: ${escapeHtml(o.note)}</div>` : ""}
         ${discHtml}
         <div style="border-top:1px dashed var(--border);margin-top:.5rem;padding-top:.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem">
-          <b style="color:var(--danger);font-size:1.05rem">Tổng: ${formatPrice(o.total)}</b>
+          <b style="color:var(--orange-fg);font-size:1.05rem">Tổng: ${formatPrice(o.total)}</b>
           ${o.status === 'pending'
             ? `<button class="abtn abtn-success abtn-sm" onclick="completeOrder(${o.id})">✓ Đã giao hàng</button>`
             : `<button class="abtn abtn-ghost abtn-sm" onclick="reopenOrder(${o.id})">↺ Mở lại</button>`}

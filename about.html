@@ -8,6 +8,8 @@
   <meta name="robots" content="index, follow">
   <link rel="canonical" href="https://vivisolution.io.vn/about.html">
   <link rel="icon" type="image/png" href="logo.png">
+  <meta name="theme-color" content="#ffffff">
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script type="application/ld+json">
@@ -21,46 +23,93 @@
   </script>
 </head>
 <body>
+  <div class="topbar">
+    <div class="topbar-in">
+      <div class="topbar-links">
+        <a href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener" title="Mở Zalo Xuân Tùng"><i class="fa-solid fa-phone"></i> Zalo 0773 372 913</a>
+        <a class="tl-green" href="mailto:xuantung2521@gmail.com">xuantung2521@gmail.com</a>
+        <a class="hide-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=Kh%C3%A1i%20T%C3%A2y%202%2C%20Ng%C5%A9%20H%C3%A0nh%20S%C6%A1n%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường Google Maps"><i class="fa-solid fa-location-dot"></i> CN1: Khái Tây 2, Ngũ Hành Sơn</a>
+        <a class="hide-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường Google Maps"><i class="fa-solid fa-location-dot"></i> CN2: K74-H36/09 Phan Thanh, Thanh Khê</a>
+      </div>
+      <div class="mode-switch" role="group" aria-label="Chế độ giao diện">
+        <button type="button" class="mode-btn mode-light" data-theme-set="light"><i class="fa-regular fa-sun"></i> Sáng</button>
+        <button type="button" class="mode-btn mode-dark" data-theme-set="dark"><i class="fa-regular fa-moon"></i> Tối</button>
+      </div>
+    </div>
+  </div>
+
   <header class="site-header">
     <div class="header-top">
-      <div class="brand" onclick="location.href='index.html'">
-        <img class="site-logo" src="logo.png" alt="ViVi Solution">
+      <div class="brand">
+        <a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook ViVi Solution"><img class="site-logo" src="logo.png" alt="ViVi Solution"></a>
         <div>
-          <h1>VIVI SOLUTION ĐÀ NẴNG</h1>
-          <small>Linh kiện điện tử &amp; công nghệ</small>
+          <h1><a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook ViVi Solution">ViVi Solution</a></h1>
+          <small><a href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường tới Chi nhánh 2">Linh kiện điện tử · Đà Nẵng</a></small>
         </div>
       </div>
       <div class="header-actions">
-        <a class="icon-btn" href="index.html"><i class="fa-solid fa-store"></i> Cửa hàng</a>
+        <a class="icon-btn" href="index.html"><i class="fa-solid fa-store"></i> <span class="lbl">Cửa hàng</span></a>
       </div>
     </div>
+    <div class="rb-stripe" aria-hidden="true"><i></i><i></i><i></i></div>
   </header>
 
-  <main class="about-page" style="max-width:1000px;margin:2rem auto;padding:0 1rem">
-    <section class="about-hero" style="background:#fff;border-radius:16px;padding:2rem;box-shadow:var(--shadow)">
-      <img src="logo.png" alt="Logo ViVi Solution" style="display:block;width:min(360px,100%);height:auto;margin:0 auto 1rem">
-      <h2 style="text-align:center;color:var(--primary);margin-bottom:.75rem">Giới thiệu ViVi Solution</h2>
-      <p>ViVi Solution là cửa hàng cung cấp linh kiện điện tử và thiết bị công nghệ tại Đà Nẵng. Website hỗ trợ khách hàng tìm kiếm, xem thông tin và đặt mua các sản phẩm phù hợp cho học tập, sửa chữa và các dự án điện tử.</p>
+  <main class="page about-page">
+    <section class="hero-card grid-paper">
+      <div class="hero-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+      <a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener"><img class="about-logo" src="logo.png" alt="Logo ViVi Solution"></a>
+      <p class="eyebrow eyebrow-cyan">Về chúng tôi</p>
+      <h2 class="section-h" style="font-size:clamp(1.6rem,3.4vw,2.25rem)">Giới thiệu ViVi Solution</h2>
+      <p class="section-sub" style="font-size:1rem;margin-top:.75rem;max-width:42rem">ViVi Solution là cửa hàng cung cấp linh kiện điện tử và thiết bị công nghệ tại Đà Nẵng. Website hỗ trợ khách hàng tìm kiếm, xem thông tin và đặt mua các sản phẩm phù hợp cho học tập, sửa chữa và các dự án điện tử.</p>
+      <div class="hero-actions" style="margin-top:1.5rem;clear:both">
+        <a class="btn-solid green" href="index.html#products"><i class="fa-solid fa-microchip"></i> Xem sản phẩm</a>
+        <a class="btn-solid orange" href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener"><i class="fa-solid fa-comment-dots"></i> Zalo cửa hàng</a>
+      </div>
     </section>
-    <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1rem">
-      <article style="background:#fff;border-radius:12px;padding:1.4rem;box-shadow:var(--shadow)">
-        <h3><i class="fa-solid fa-microchip"></i> Sản phẩm</h3>
-        <p>Bo mạch, vi xử lý, cảm biến, linh kiện thụ động, nguồn, kết nối và phụ kiện điện tử.</p>
-      </article>
-      <article style="background:#fff;border-radius:12px;padding:1.4rem;box-shadow:var(--shadow)">
-        <h3><i class="fa-solid fa-location-dot"></i> Địa chỉ</h3>
-        <p>Khái Tây 2, Ngũ Hành Sơn, TP. Đà Nẵng.</p>
-      </article>
-      <article style="background:#fff;border-radius:12px;padding:1.4rem;box-shadow:var(--shadow)">
-        <h3><i class="fa-solid fa-headset"></i> Liên hệ</h3>
-        <p>Điện thoại: <a href="tel:0773372913">0773372913</a><br>Email: <a href="mailto:xuantung2521@gmail.com">xuantung2521@gmail.com</a></p>
-      </article>
+
+    <section class="section">
+      <p class="eyebrow eyebrow-orange">Thông tin</p>
+      <h2 class="section-h">Cửa hàng ViVi Solution</h2>
+      <div class="about-grid">
+        <article class="info-card">
+          <i class="fa-solid fa-microchip"></i>
+          <h3>Sản phẩm</h3>
+          <p>Bo mạch, vi xử lý, cảm biến, linh kiện thụ động, nguồn, kết nối và phụ kiện điện tử.</p>
+        </article>
+        <article class="info-card">
+          <i class="fa-solid fa-location-dot"></i>
+          <h3>Địa chỉ</h3>
+          <p><b>Chi nhánh 1:</b> <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Kh%C3%A1i%20T%C3%A2y%202%2C%20Ng%C5%A9%20H%C3%A0nh%20S%C6%A1n%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener">Khái Tây 2, Ngũ Hành Sơn, TP. Đà Nẵng</a> (bên cạnh Gas Động Lực)</p>
+          <p style="margin-top:.5rem"><b>Chi nhánh 2:</b> <a href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener">K74-H36/09 Phan Thanh, Phường Thanh Khê, TP. Đà Nẵng</a></p>
+        </article>
+        <article class="info-card">
+          <i class="fa-solid fa-headset"></i>
+          <h3>Liên hệ</h3>
+          <a href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener" class="about-qr" title="Mở Zalo Xuân Tùng"><img src="images/qr-zalo-xuantung.jpg" alt="Mã QR Zalo Xuân Tùng" loading="lazy"></a>
+          <p>Zalo: <a href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener">0773 372 913 (Xuân Tùng)</a><br>Email: <a href="mailto:xuantung2521@gmail.com">xuantung2521@gmail.com</a></p>
+        </article>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <p><b>ViVi Solution Đà Nẵng</b> — Linh kiện điện tử &amp; công nghệ</p>
-    <p><a href="index.html">Về cửa hàng</a></p>
+    <div class="footer-grid">
+      <div>
+        <p class="eyebrow eyebrow-cyan">ViVi Solution</p>
+        <p><a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener"><b>ViVi Solution Đà Nẵng</b></a> — Linh kiện điện tử &amp; RoBot AI</p>
+        <p><a href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener"><i class="fa-solid fa-phone"></i> Zalo 0773 372 913</a> · <a href="mailto:xuantung2521@gmail.com">xuantung2521@gmail.com</a></p>
+      </div>
+      <div>
+        <p class="eyebrow eyebrow-green">Chi nhánh 1</p>
+        <p><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Kh%C3%A1i%20T%C3%A2y%202%2C%20Ng%C5%A9%20H%C3%A0nh%20S%C6%A1n%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> Khái Tây 2, Ngũ Hành Sơn, Đà Nẵng</a></p>
+        <p class="muted-sm">Bên cạnh Gas Động Lực</p>
+      </div>
+      <div>
+        <p class="eyebrow eyebrow-orange">Chi nhánh 2</p>
+        <p><a href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> K74-H36/09 Phan Thanh, P. Thanh Khê, TP. Đà Nẵng</a></p>
+      </div>
+    </div>
+    <p class="footer-bottom mono">© 2026 ViVi Solution · <a href="index.html">Cửa hàng</a> · <a href="https://robot5320-fw.netlify.app/" target="_blank" rel="noopener">Sơ đồ và Firmware</a> · <a href="index.html#dat-thiet-ke">Đặt thiết kế PCB · In 3D · STEM</a> · <a href="about.html">Giới thiệu</a></p>
   </footer>
 </body>
 </html>

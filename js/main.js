@@ -41,6 +41,8 @@ function renderStats() {
   const products = getProducts();
   const el = document.getElementById("statCount");
   if (el) el.textContent = products.length;
+  const catEl = document.getElementById("statCats");
+  if (catEl && typeof CATEGORIES !== "undefined") catEl.textContent = CATEGORIES.length;
 }
 
 // ===== Banner slider (quảng cáo) =====
@@ -100,25 +102,25 @@ function renderProducts() {
   }
 
   grid.innerHTML = filtered.map(p => {
-    const primary = getPrimaryImage(p);
-    const imgHtml = looksLikeImage(primary)
-      ? `<img src="${primary}" alt="${escapeHtml(p.name)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.replaceWith('🔧')" />`
-      : `<span>${primary}</span>`;
+    const imgHtml = carouselHtml(getProductImages(p), p.name);
+    const firstOpt = getProductOptions(p)[0];
+    const oldP = optionOldPrice(p, firstOpt);
+    const pct = oldP ? discountPercent(oldP, optionPrice(p, firstOpt)) : 0;
     const st = stockStatus(p.stock);
     const stars = renderStars(p.rating);
     const disabled = p.stock <= 0 ? "disabled" : "";
     return `
       <div class="product-card" data-id="${p.id}">
-        <div class="img-wrap">${imgHtml}</div>
+        <div class="img-wrap">${imgHtml}${pct ? `<span class="sale-badge">-${pct}%</span>` : ""}</div>
         <div class="pc-body">
           <div class="pc-cat">${p.category}</div>
           <div class="pc-name">${escapeHtml(p.name)}</div>
           <div class="stars">${stars}</div>
-          <div class="pc-price">${formatPrice(p.price)}</div>
+          ${priceBlockHtml(p, firstOpt, false)}
           <div class="pc-stock ${st.cls}">${st.label} (${p.stock} ${p.unit})</div>
           <div class="pc-actions">
-            <button class="btn btn-outline btn-sm" data-action="view" data-id="${p.id}">Chi tiết</button>
-            <button class="btn btn-accent btn-sm" data-action="add" data-id="${p.id}" ${disabled}>${disabled ? "Hết hàng" : "Thêm giỏ"}</button>
+            <button class="btn btn-outline-orange btn-sm pc-add" data-action="add" data-id="${p.id}" ${disabled} title="Thêm vào giỏ hàng" aria-label="Thêm vào giỏ hàng"><svg class="ico-cart" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.6l2.4 11.2a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.2l1.7-7.3H6.1"/><path d="M13 7.5v5M10.5 10h5"/></svg><span class="lbl-add">Thêm giỏ</span></button>
+            <button class="btn btn-accent btn-sm" data-action="buy" data-id="${p.id}" ${disabled}>${disabled ? "Hết hàng" : "Mua ngay"}</button>
           </div>
         </div>
       </div>`;
@@ -215,6 +217,11 @@ function bindEvents() {
       }
     }
     if (btn.dataset.action === "view") openDetail(id);
+    if (btn.dataset.action === "buy") {
+      const p = getProducts().find(pp => Number(pp.id) === Number(id));
+      if (p && getProductOptions(p).length > 1) openDetail(id); // cần chọn phân loại trước
+      else buyNow(id, undefined, 1);
+    }
   });
   // card click -> detail (unless add button)
   document.getElementById("productGrid").addEventListener("click", e => {
@@ -339,26 +346,23 @@ function doChangePassword() {
 function openDetail(id) {
   const p = getProducts().find(p => Number(p.id) === Number(id));
   if (!p) return;
-  const st = stockStatus(p.stock);
   const imgs = getProductImages(p);
-  const imgHtml = looksLikeImage(imgs[0])
-    ? `<img src="${imgs[0]}" style="max-height:220px;margin:0 auto" alt="${escapeHtml(p.name)}" decoding="async" id="galleryMainImg" />`
-    : `<div style="font-size:5rem;text-align:center">${imgs[0] || "🔧"}</div>`;
+  const galleryHtml = carouselHtml(imgs, p.name, "modal-carousel");
   // Thumbnail gallery (if multiple images)
   const thumbs = imgs.length > 1
-    ? `<div class="gallery-thumbs" style="display:flex;gap:.5rem;justify-content:center;margin-top:.6rem;flex-wrap:wrap">
+    ? `<div class="gallery-thumbs">
         ${imgs.map((img, i) => {
           const tContent = looksLikeImage(img)
             ? `<img src="${img}" alt="${escapeHtml(p.name)} - ảnh ${i + 1}" loading="lazy" decoding="async">`
             : `<span>${img}</span>`;
-          return `<button type="button" class="gallery-thumb ${i === 0 ? "active" : ""}" data-gidx="${i}" style="width:56px;height:56px;border:2px solid ${i === 0 ? "var(--primary)" : "transparent"};border-radius:8px;overflow:hidden;cursor:pointer;background:#f1f4fa;display:flex;align-items:center;justify-content:center">${tContent}</button>`;
+          return `<button type="button" class="gallery-thumb ${i === 0 ? "active" : ""}" data-gidx="${i}" aria-label="Ảnh ${i + 1}">${tContent}</button>`;
         }).join("")}
       </div>`
     : "";
-// Options (biến thể sản phẩm)
+  // Options (biến thể sản phẩm)
   const opts = getProductOptions(p);
   const hasMultiOpts = opts.length > 1;
-const optHtml = hasMultiOpts
+  const optHtml = hasMultiOpts
     ? `<div class="opt-select">
         <label>Chọn phân loại</label>
         <div class="opt-chips">
@@ -375,76 +379,104 @@ const optHtml = hasMultiOpts
     : "";
   document.getElementById("modalBody").innerHTML = `
     <button class="modal-close">✕</button>
-    <div style="font-size:4rem;text-align:center;margin-bottom:.5rem">${imgHtml}</div>
+    ${galleryHtml}
     ${thumbs}
     <h2>${escapeHtml(p.name)}</h2>
     <div class="stars">${renderStars(p.rating)}</div>
-    <div class="m-price" id="modalPrice">${formatPrice(optionPrice(p, opts[0]))}</div>
+    <div class="m-price-box" id="modalPrice">${priceBlockHtml(p, opts[0], true)}</div>
     <p class="m-desc">${escapeHtml(p.desc || "Chưa có mô tả.")}</p>
     ${optHtml}
-    <p class="pc-stock ${st.cls}" id="modalStock">${st.label} (${optionStock(p, opts[0])} ${p.unit})</p>
-    <button class="btn btn-accent" id="modalAdd" style="width:100%;margin-top:.8rem">
-      ${optionStock(p, opts[0]) <= 0 ? "Hết hàng" : "🛒 Thêm vào giỏ hàng"}
-    </button>`;
+    <div class="qty-row">
+      <span class="qty-label">Số lượng</span>
+      <div class="qty-box">
+        <button type="button" data-q="-1" aria-label="Giảm">−</button>
+        <input type="number" id="modalQty" value="1" min="1" inputmode="numeric" aria-label="Số lượng">
+        <button type="button" data-q="1" aria-label="Tăng">+</button>
+      </div>
+      <span class="pc-stock" id="modalStock"></span>
+    </div>
+    <div class="buy-actions">
+      <button type="button" class="btn btn-outline-orange" id="modalAdd"><svg class="ico-cart" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3.5h2.6l2.4 11.2a1.6 1.6 0 0 0 1.6 1.3h8.6a1.6 1.6 0 0 0 1.6-1.2l1.7-7.3H6.1"/><path d="M13 7.5v5M10.5 10h5"/></svg> Thêm vào giỏ<span class="lbl-long"> hàng</span></button>
+      <button type="button" class="btn btn-accent" id="modalBuy">Mua ngay</button>
+    </div>`;
   document.getElementById("detailModal").classList.add("show");
 
-  // Track the currently selected option index
   let selOpt = 0;
-  // Close button for the dynamic detail modal
-  const closeBtn = document.querySelector("#modalBody .modal-close");
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      document.getElementById("detailModal").classList.remove("show");
-    });
+  const qtyInput = document.getElementById("modalQty");
+  const addBtn = document.getElementById("modalAdd");
+  const buyBtn = document.getElementById("modalBuy");
+
+  // Cập nhật giá, tồn kho, giới hạn số lượng theo phân loại đang chọn
+  function refresh() {
+    const curOpt = opts[selOpt];
+    const os = optionStock(p, curOpt);
+    const ost = stockStatus(os);
+    document.getElementById("modalPrice").innerHTML = priceBlockHtml(p, curOpt, true);
+    const stockEl = document.getElementById("modalStock");
+    stockEl.className = "pc-stock " + ost.cls;
+    stockEl.textContent = ost.label + " (" + os + " " + p.unit + ")";
+    qtyInput.max = Math.max(os, 1);
+    clampQty();
+    addBtn.disabled = os <= 0;
+    buyBtn.disabled = os <= 0;
+    buyBtn.textContent = os <= 0 ? "Hết hàng" : "Mua ngay";
   }
-  // Option chip selection
-  const chips = document.querySelectorAll("#modalBody .opt-chip");
-  if (chips.length) {
-    chips.forEach(chip => {
-      chip.addEventListener("click", () => {
-        chips.forEach(c => c.classList.remove("active"));
-        chip.classList.add("active");
-        selOpt = Number(chip.dataset.opt);
-        const curOpt = opts[selOpt];
-        const priceEl = document.getElementById("modalPrice");
-        const stockEl = document.getElementById("modalStock");
-        const addBtn = document.getElementById("modalAdd");
-        if (priceEl) priceEl.textContent = formatPrice(optionPrice(p, curOpt));
-        const os = optionStock(p, curOpt);
-        const ost = stockStatus(os);
-        if (stockEl) {
-          stockEl.className = "pc-stock " + st.cls;
-          stockEl.textContent = ost.label + " (" + os + " " + p.unit + ")";
-        }
-        if (addBtn) {
-          addBtn.disabled = os <= 0;
-          addBtn.textContent = os <= 0 ? "Hết hàng" : "🛒 Thêm vào giỏ hàng";
-        }
-      });
-    });
+  function clampQty() {
+    const os = optionStock(p, opts[selOpt]);
+    let q = parseInt(qtyInput.value, 10);
+    if (!q || q < 1) q = 1;
+    if (os > 0 && q > os) { q = os; toast("Chỉ còn " + os + " " + p.unit); }
+    qtyInput.value = q;
+    return q;
   }
-  // Gallery switching
-  document.querySelectorAll(".gallery-thumb").forEach(t => {
-    t.addEventListener("click", () => {
-      const idx = Number(t.dataset.gidx);
-      const cur = getProductImages(getProducts().find(pp => Number(pp.id) === Number(id)));
-      const main = document.getElementById("galleryMainImg");
-      document.querySelectorAll(".gallery-thumb").forEach(x => { x.style.borderColor = "transparent"; });
-      t.style.borderColor = "var(--primary)";
-      if (main && main.tagName === "IMG" && looksLikeImage(cur[idx])) {
-        main.src = cur[idx];
-      }
+
+  document.querySelector("#modalBody .modal-close").addEventListener("click", () => {
+    document.getElementById("detailModal").classList.remove("show");
+  });
+  document.querySelectorAll("#modalBody .opt-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      document.querySelectorAll("#modalBody .opt-chip").forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      selOpt = Number(chip.dataset.opt);
+      refresh();
     });
   });
-  const add = document.getElementById("modalAdd");
-  if (add) {
-    add.setAttribute("data-sel", "0");
-    add.addEventListener("click", () => {
-      const curOpt = opts[selOpt];
-      if (curOpt && optionStock(p, curOpt) <= 0) { toast("Phân loại này hiện hết hàng"); return; }
-      addToCart(id, curOpt);
+  document.querySelectorAll("#modalBody .qty-box button").forEach(b => {
+    b.addEventListener("click", () => {
+      qtyInput.value = (parseInt(qtyInput.value, 10) || 1) + Number(b.dataset.q);
+      clampQty();
     });
-  }
+  });
+  qtyInput.addEventListener("change", clampQty);
+  // Gallery switching: bấm ảnh nhỏ -> chuyển ảnh lớn
+  document.querySelectorAll("#modalBody .gallery-thumb").forEach(t => {
+    t.addEventListener("click", () => {
+      const car = document.querySelector("#modalBody .img-carousel");
+      if (car) carouselGo(car, Number(t.dataset.gidx));
+    });
+  });
+  addBtn.addEventListener("click", () => {
+    const curOpt = opts[selOpt];
+    if (optionStock(p, curOpt) <= 0) { toast("Phân loại này hiện hết hàng"); return; }
+    addToCart(id, curOpt, clampQty());
+  });
+  buyBtn.addEventListener("click", () => buyNow(id, opts[selOpt], clampQty()));
+  refresh();
+}
+
+// Khối giá: giá gốc gạch ngang + "chỉ còn" giá bán + % giảm
+function priceBlockHtml(p, opt, big) {
+  const price = optionPrice(p, opt);
+  const old = optionOldPrice(p, opt);
+  if (!old) return `<div class="${big ? "m-price" : "pc-price"}">${formatPrice(price)}</div>`;
+  const pct = discountPercent(old, price);
+  return `<div class="price-old"><s>${formatPrice(old)}</s>${pct && big ? `<span class="off-badge">-${pct}%</span>` : ""}</div>
+    <div class="${big ? "m-price" : "pc-price"}"><span class="price-only">chỉ còn</span> ${formatPrice(price)}</div>`;
+}
+
+// Mua ngay: thêm vào giỏ rồi chuyển thẳng sang trang thanh toán
+function buyNow(id, opt, qty) {
+  if (addToCart(id, opt, qty || 1, true)) window.location.href = "checkout.html";
 }
 
 // Determine if an image string is an actual image (URL / data URL), not an emoji.
@@ -455,25 +487,34 @@ function looksLikeImage(img) {
 
 // ===== Cart logic =====
 // Cart item: { id, qty, optLabel?, optPrice?, optStock? }
-function addToCart(id, opt) {
+// Trả về true nếu thêm được (dùng cho "Mua ngay").
+function addToCart(id, opt, qty, silent) {
   const p = getProducts().find(p => Number(p.id) === Number(id));
-  if (!p) return;
+  if (!p) return false;
+  qty = Math.max(1, parseInt(qty, 10) || 1);
   // Determine unit price & stock for this line
   const unitPrice = opt && typeof opt.price === "number" && opt.price > 0 ? Number(opt.price) : Number(p.price) || 0;
   const unitStock = opt && typeof opt.stock === "number" && opt.stock >= 0 ? Number(opt.stock) : Number(p.stock) || 0;
   const optLabel = opt && opt.label ? String(opt.label) : "Mặc định";
-  if (unitStock <= 0) { toast("Phân loại này hiện hết hàng"); return; }
+  if (unitStock <= 0) { toast("Phân loại này hiện hết hàng"); return false; }
   const cart = getCart();
-  const found = cart.find(c => Number(c.id) === Number(id) && c.optLabel === optLabel);
-  if (found) {
-    if (found.qty >= unitStock) { toast("Số lượng vượt quá tồn kho"); return; }
-    found.qty++;
-  } else {
-    cart.push({ id: Number(id), qty: 1, optLabel, optPrice: unitPrice, optStock: unitStock });
+  const found = cart.find(c => Number(c.id) === Number(id) && (c.optLabel || "Mặc định") === optLabel);
+  const already = found ? found.qty : 0;
+  if (already >= unitStock) {
+    toast("Số lượng vượt quá tồn kho");
+    return !!silent; // Mua ngay: vẫn sang thanh toán vì hàng đã có trong giỏ
   }
+  let addQty = qty;
+  if (already + addQty > unitStock) {
+    addQty = unitStock - already;
+    toast("Chỉ thêm được " + addQty + " (tồn kho " + unitStock + ")");
+  }
+  if (found) found.qty += addQty;
+  else cart.push({ id: Number(id), qty: addQty, optLabel, optPrice: unitPrice, optStock: unitStock });
   saveCart(cart);
   renderCart();
-  toast("Đã thêm vào giỏ hàng 🛒");
+  if (!silent) toast("Đã thêm " + addQty + " vào giỏ hàng 🛒");
+  return true;
 }
 
 function lineKey(c) {
@@ -679,3 +720,88 @@ function toast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.style.display = "none", 2500);
 }
+
+
+// ===== Carousel ảnh sản phẩm (nút trái/phải, quay vòng, vuốt trên điện thoại) =====
+function carouselHtml(imgs, name, extraCls) {
+  const list = (imgs && imgs.length) ? imgs : ["🔧"];
+  const n = list.length;
+  const slides = list.map((img, i) => {
+    const inner = looksLikeImage(img)
+      ? `<img src="${img}" alt="${escapeHtml(name)}${n > 1 ? " - ảnh " + (i + 1) : ""}" loading="lazy" decoding="async" onerror="this.onerror=null;this.replaceWith('🔧')" />`
+      : `<span class="img-emoji">${img}</span>`;
+    return `<div class="img-slide ${i === 0 ? "active" : ""}">${inner}</div>`;
+  }).join("");
+  const nav = n > 1
+    ? `<button type="button" class="img-nav prev" data-nav="-1" aria-label="Ảnh trước"><i class="fa-solid fa-chevron-left"></i></button>
+       <button type="button" class="img-nav next" data-nav="1" aria-label="Ảnh sau"><i class="fa-solid fa-chevron-right"></i></button>
+       <div class="img-dots">${list.map((_, i) => `<button type="button" class="img-dot ${i === 0 ? "active" : ""}" data-go="${i}" aria-label="Ảnh ${i + 1}"></button>`).join("")}</div>
+       <span class="img-count">1/${n}</span>`
+    : "";
+  return `<div class="img-carousel ${extraCls || ""}" data-ci="0" data-n="${n}">${slides}${nav}</div>`;
+}
+
+function carouselGo(car, idx) {
+  const slides = car.querySelectorAll(".img-slide");
+  const n = slides.length;
+  if (n < 2) return;
+  const i = ((idx % n) + n) % n; // quay vòng
+  car.dataset.ci = i;
+  slides.forEach((s, k) => s.classList.toggle("active", k === i));
+  car.querySelectorAll(".img-dot").forEach((d, k) => d.classList.toggle("active", k === i));
+  const cnt = car.querySelector(".img-count");
+  if (cnt) cnt.textContent = (i + 1) + "/" + n;
+  if (car.closest("#modalBody")) {
+    document.querySelectorAll("#modalBody .gallery-thumb").forEach((t, k) => t.classList.toggle("active", k === i));
+  }
+}
+
+function carouselStep(car, delta) {
+  carouselGo(car, Number(car.dataset.ci || 0) + delta);
+}
+
+// Bắt sự kiện ở pha capture để nút chuyển ảnh không mở trang chi tiết sản phẩm
+document.addEventListener("click", e => {
+  const nav = e.target.closest && e.target.closest(".img-nav, .img-dot");
+  if (!nav) return;
+  const car = nav.closest(".img-carousel");
+  if (!car) return;
+  e.stopPropagation();
+  e.preventDefault();
+  if (nav.classList.contains("img-dot")) carouselGo(car, Number(nav.dataset.go));
+  else carouselStep(car, Number(nav.dataset.nav));
+}, true);
+
+// Vuốt trái/phải trên điện thoại
+(function () {
+  let sx = 0, sy = 0, car = null;
+  document.addEventListener("touchstart", e => {
+    car = e.target.closest && e.target.closest(".img-carousel");
+    if (!car || Number(car.dataset.n) < 2) { car = null; return; }
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener("touchend", e => {
+    if (!car) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      carouselStep(car, dx < 0 ? 1 : -1);
+      // chặn click "ma" sau khi vuốt để không mở chi tiết
+      const stop = ev => { ev.stopPropagation(); ev.preventDefault(); };
+      document.addEventListener("click", stop, { capture: true, once: true });
+      setTimeout(() => document.removeEventListener("click", stop, true), 400);
+    }
+    car = null;
+  }, { passive: true });
+})();
+
+// ===== Ô "Compo Tự lắp / Robot hoàn thiện / XiaoZhi78 AI" -> lọc danh mục sản phẩm =====
+document.addEventListener("click", e => {
+  const pick = e.target.closest && e.target.closest("[data-cat-pick]");
+  if (!pick) return;
+  currentCategory = pick.dataset.catPick;
+  renderCategories();
+  renderProducts();
+  const target = document.getElementById("products");
+  if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+});

@@ -36,29 +36,47 @@
     }
   }
   </script>
+  <meta name="theme-color" content="#ffffff">
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+  <!-- Top bar: liên hệ + chế độ Sáng/Tối -->
+  <div class="topbar">
+    <div class="topbar-in">
+      <div class="topbar-links">
+        <a href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener" title="Mở Zalo Xuân Tùng"><i class="fa-solid fa-phone"></i> Zalo 0773 372 913</a>
+        <a class="tl-green" href="mailto:xuantung2521@gmail.com">xuantung2521@gmail.com</a>
+        <a class="hide-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=Kh%C3%A1i%20T%C3%A2y%202%2C%20Ng%C5%A9%20H%C3%A0nh%20S%C6%A1n%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường Google Maps"><i class="fa-solid fa-location-dot"></i> CN1: Khái Tây 2, Ngũ Hành Sơn</a>
+        <a class="hide-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường Google Maps"><i class="fa-solid fa-location-dot"></i> CN2: K74-H36/09 Phan Thanh, Thanh Khê</a>
+      </div>
+      <div class="mode-switch" role="group" aria-label="Chế độ giao diện">
+        <button type="button" class="mode-btn mode-light" data-theme-set="light"><i class="fa-regular fa-sun"></i> Sáng</button>
+        <button type="button" class="mode-btn mode-dark" data-theme-set="dark"><i class="fa-regular fa-moon"></i> Tối</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="site-header">
     <div class="header-top">
-      <div class="brand" onclick="location.href='index.html'">
-        <img class="site-logo" src="logo.png" alt="ViVi Solution">
+      <div class="brand">
+        <a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook ViVi Solution"><img class="site-logo" src="logo.png" alt="ViVi Solution"></a>
         <div>
-<h1>VIVI SOLUTION ĐÀ NẴNG</h1>
-          <small>Linh kiện điện tử & công nghệ</small>
+          <h1><a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook ViVi Solution">ViVi Solution</a></h1>
+          <small><a href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường tới Chi nhánh 2">Linh kiện điện tử · Đà Nẵng</a></small>
         </div>
       </div>
       <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Tìm sản phẩm...">
-        <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <input type="text" id="searchInput" placeholder="Tìm sản phẩm, ví dụ: ESP32, cảm biến…" aria-label="Tìm sản phẩm">
+        <button id="searchBtn" aria-label="Tìm"><i class="fa-solid fa-magnifying-glass"></i></button>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" id="authBtn"><i class="fa-solid fa-user"></i> <span id="authLabel">Đăng nhập</span></button>
+        <button class="icon-btn" id="authBtn"><i class="fa-solid fa-user"></i> <span id="authLabel" class="lbl">Đăng nhập</span></button>
         <div class="auth-menu" id="authMenu" style="display:none">
           <button class="icon-btn auth-toggle" id="authToggle">
-            <i class="fa-solid fa-user"></i> <span id="authLabel2">Tài khoản</span>
+            <i class="fa-solid fa-user"></i> <span id="authLabel2" class="lbl">Tài khoản</span>
             <i class="fa-solid fa-chevron-down" style="font-size:.7rem"></i>
           </button>
           <div class="auth-dropdown" id="authDropdown">
@@ -66,58 +84,213 @@
             <a href="javascript:void(0)" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
           </div>
         </div>
-        <button class="icon-btn cart-btn" id="cartBtn">
-          <i class="fa-solid fa-cart-shopping"></i>
+        <a class="icon-btn robot-btn" href="#robot-ai"><i class="fa-solid fa-robot"></i> <span class="lbl">RoBot AI</span></a>
+<a class="icon-btn robot-btn" href="#dat-thiet-ke"><i class="fa-solid fa-pen-ruler"></i> <span class="lbl">Đặt thiết kế</span></a>
+        <span class="admin-link" id="adminLink" style="display:none"><a class="icon-btn" href="admin.html"><i class="fa-solid fa-sliders"></i> <span class="lbl">Quản trị</span></a></span>
+        <button class="icon-btn cart-btn" id="cartBtn" aria-label="Giỏ hàng">
+          <i class="fa-solid fa-cart-shopping"></i> <span class="lbl">Giỏ hàng</span>
           <span class="cart-count" id="cartQty">0</span>
         </button>
-<span class="admin-link" id="adminLink" style="display:none"><a class="icon-btn" href="admin.html"><i class="fa-solid fa-sliders"></i> Quản trị</a></span>
       </div>
     </div>
+    <div class="rb-stripe" aria-hidden="true"><i></i><i></i><i></i></div>
   </header>
 
-  <!-- Category sidebar toggle (mobile) -->
-  <button class="cat-toggle" id="catToggle" aria-label="Mở danh mục">
-    <i class="fa-solid fa-bars"></i> <span>Danh mục</span>
-  </button>
-
-<!-- Category sidebar -->
-  <div class="cat-sidebar" id="catSidebar">
-    <div class="cat-sidebar-head">Danh mục</div>
-    <div class="cat-bar" id="catBar"></div>
-  </div>
-  <!-- Scrim overlay for mobile sidebar -->
-  <div class="cat-scrim" id="catScrim"></div>
-
-<!-- Category dropdown (shown on narrow screens) -->
-  <div class="cat-drop-wrap" id="catDropWrap">
-    <label for="catSelect" class="cat-drop-label"><i class="fa-solid fa-bars"></i> Danh mục</label>
-    <select id="catSelect" class="cat-drop" aria-label="Chọn danh mục"></select>
-  </div>
-
+  <main class="home-flow">
   <!-- Hero -->
   <section class="hero">
-    <h2>🛒 Linh kiện điện tử chất lượng cao</h2>
-    <p>Vi xử lý, bo mạch, cảm biến, linh kiện thụ động & nhiều hơn nữa tại Đà Nẵng</p>
-    <!-- Banner slider (quảng cáo) - được quản trị viên chỉnh sửa -->
-    <div class="banner-slider" id="bannerSlider"></div>
-    <div class="stats">
-      <div class="stat"><b id="statCount">0</b><span>Sản phẩm</span></div>
-      <div class="stat"><b>📞</b><span>Liên hệ: 0773372913</span></div>
-      <div class="stat"><b>✉️</b><span>Email: xuantung2521@gmail.com</span></div>
+    <div class="hero-card grid-paper">
+      <div class="hero-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow eyebrow-cyan">Cửa hàng linh kiện · ViVi Solution</p>
+          <h2>Vi xử lý, bo mạch, cảm biến <br>và phụ kiện trong một cửa hàng.</h2>
+          <p class="hero-sub">Linh kiện cho học tập, sửa chữa và dự án điện tử tại Đà Nẵng. Đặt hàng online, thanh toán khi nhận hàng (COD), hỗ trợ kỹ thuật qua điện thoại.</p>
+        </div>
+        <!-- Mã QR nhóm Zalo -->
+        <div class="hero-qr" aria-label="Nhóm Zalo cộng đồng">
+          <div class="qr-card">
+            <a href="https://zalo.me/g/ghwomx800" target="_blank" rel="noopener" class="qr-img" title="Tham gia nhóm RoBot5320XiaoZhi78AI"><img src="images/qr-nhom-robot5320.jpg" alt="Mã QR nhóm Zalo RoBot5320XiaoZhi78AI" loading="lazy"></a>
+            <b>RoBot5320XiaoZhi78AI</b>
+            <span>Cộng đồng Zalo</span>
+            <a class="btn-solid green sm" href="https://zalo.me/g/ghwomx800" target="_blank" rel="noopener"><i class="fa-solid fa-user-plus"></i> Tham gia nhóm</a>
+          </div>
+          <div class="qr-card">
+            <a href="https://zalo.me/g/scat77dgkbpfkjspylgc" target="_blank" rel="noopener" class="qr-img" title="Tham gia nhóm Hỗ Trợ RB5320XZ78AI"><img src="images/qr-nhom-hotro.jpg" alt="Mã QR nhóm Zalo Hỗ Trợ RB5320XZ78AI" loading="lazy"></a>
+            <b>Hỗ Trợ RB5320XZ78AI</b>
+            <span>Nhóm hỗ trợ kỹ thuật</span>
+            <a class="btn-solid cyan sm" href="https://zalo.me/g/scat77dgkbpfkjspylgc" target="_blank" rel="noopener"><i class="fa-solid fa-headset"></i> Tham gia nhóm</a>
+          </div>
+        </div>
+      </div>
+      <!-- Banner slider (quảng cáo) - được quản trị viên chỉnh sửa -->
+      <div class="banner-slider" id="bannerSlider"></div>
+    </div>
+
+    <div class="hero-actions">
+      <a class="btn-solid green hide-m" href="#products"><i class="fa-solid fa-microchip"></i> Xem sản phẩm</a>
+      <a class="btn-solid cyan" href="https://robot5320-fw.netlify.app/" target="_blank" rel="noopener"><i class="fa-solid fa-diagram-project"></i> Sơ đồ và Firmware</a>
+      <a class="btn-solid orange" href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener"><i class="fa-solid fa-comment-dots"></i> Zalo 0773 372 913</a>
+    </div>
+
+  </section>
+
+  <section class="store-info" id="store-info">
+      <p class="eyebrow eyebrow-orange">Thông tin cửa hàng</p>
+      <h2 class="section-h">Mua linh kiện nhanh tại Đà Nẵng</h2>
+      <p class="section-sub">Hai chi nhánh: <a class="sub-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=Kh%C3%A1i%20T%C3%A2y%202%2C%20Ng%C5%A9%20H%C3%A0nh%20S%C6%A1n%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener">Khái Tây 2, Ngũ Hành Sơn</a> · <a class="sub-link" href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener">K74-H36/09 Phan Thanh, Thanh Khê</a></p>
+      <div class="stats">
+        <div class="stat"><b id="statCount">0</b><strong>Sản phẩm</strong><span>Đang bày bán trên web</span></div>
+        <div class="stat"><b id="statCats" class="c-green">0</b><strong>Danh mục</strong><span>Vi xử lý, bo mạch, cảm biến…</span></div>
+        <div class="stat"><b class="c-orange">COD</b><strong>Thanh toán</strong><span>Trả tiền khi nhận hàng</span></div>
+        <div class="stat"><b>500k</b><strong>Miễn phí ship</strong><span>Cho đơn từ 500.000đ</span></div>
+      </div>
+    </section>
+
+  <!-- Hướng dẫn làm RoBot AI -->
+  <section class="robot-ai" id="robot-ai">
+    <div class="robot-head">
+      <div>
+        <p class="eyebrow eyebrow-cyan">Tự làm RoBot AI · XiaoZhi78</p>
+        <h2 class="section-h">Mua linh kiện, tự lắp RoBot AI biết nói chuyện</h2>
+        <p class="section-sub">Chọn compo tại shop, đấu nối theo sơ đồ, nạp firmware ngay trên trình duyệt. Vướng chỗ nào thì hỏi nhóm hỗ trợ.</p>
+      </div>
+    </div>
+    <div class="robot-grid">
+      <a class="feature-card feature-main" href="https://robot5320-fw.netlify.app/" target="_blank" rel="noopener">
+        <span class="feature-step mono">BƯỚC CHÍNH</span>
+        <i class="fa-solid fa-diagram-project"></i>
+        <h3>Sơ đồ và Firmware</h3>
+        <p>Sơ đồ đấu nối màn TFT 1.54 / 2.8 inch với ESP32-S3, nạp firmware RoBot.5320 trực tiếp trên Chrome/Edge — không cần cài phần mềm.</p>
+        <span class="feature-link mono">robot5320-fw.netlify.app <i class="fa-solid fa-arrow-up-right-from-square"></i></span>
+      </a>
+      <button type="button" class="feature-card" data-cat-pick="Compo Tự lắp">
+        <span class="feature-step mono">01</span>
+        <i class="fa-solid fa-box-open"></i>
+        <h3>Compo Tự lắp</h3>
+        <p>Bộ linh kiện đủ để tự lắp RoBot AI: mạch, màn hình, loa, mic, pin.</p>
+        <span class="feature-link mono">Xem sản phẩm <i class="fa-solid fa-arrow-down"></i></span>
+      </button>
+      <button type="button" class="feature-card" data-cat-pick="Robot hoàn thiện">
+        <span class="feature-step mono">02</span>
+        <i class="fa-solid fa-robot"></i>
+        <h3>Robot hoàn thiện</h3>
+        <p>Robot đã lắp sẵn, nạp firmware, mở hộp là dùng.</p>
+        <span class="feature-link mono">Xem sản phẩm <i class="fa-solid fa-arrow-down"></i></span>
+      </button>
+      <button type="button" class="feature-card" data-cat-pick="XiaoZhi78 AI">
+        <span class="feature-step mono">03</span>
+        <i class="fa-solid fa-microchip"></i>
+        <h3>XiaoZhi78 AI</h3>
+        <p>Linh kiện và phụ kiện dành riêng cho dòng XiaoZhi78 AI.</p>
+        <span class="feature-link mono">Xem sản phẩm <i class="fa-solid fa-arrow-down"></i></span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Dịch vụ thiết kế theo yêu cầu -->
+  <section class="services" id="dat-thiet-ke">
+    <p class="eyebrow eyebrow-orange">Dịch vụ theo yêu cầu</p>
+    <h2 class="section-h">Đặt thiết kế PCB, in 3D và STEM KHKT</h2>
+    <p class="section-sub">Nhắn Zalo trực tiếp cho người phụ trách: gửi ý tưởng, bản vẽ hoặc yêu cầu để được tư vấn và báo giá.</p>
+    <div class="svc-grid">
+      <article class="svc-card svc-pcb">
+        <a class="svc-qr" href="https://zaloapp.com/qr/p/1s30po97eimwb" target="_blank" rel="noopener" title="Mở Zalo Phan Văn Truyền"><img src="images/qr-zalo-truyen.jpg" alt="Mã QR Zalo Phan Văn Truyền" loading="lazy"></a>
+        <div class="svc-body">
+          <span class="svc-tag mono">PCB</span>
+          <h3>Thiết kế PCB theo yêu cầu</h3>
+          <p class="svc-name"><i class="fa-solid fa-user"></i> Phan Văn Truyền</p>
+          <p class="svc-desc">Nhận thiết kế mạch in PCB theo yêu cầu cho dự án của bạn.</p>
+          <a class="btn-solid green sm" href="https://zaloapp.com/qr/p/1s30po97eimwb" target="_blank" rel="noopener"><i class="fa-solid fa-comment-dots"></i> Zalo 0899 860 191</a>
+        </div>
+      </article>
+      <article class="svc-card svc-3d">
+        <a class="svc-qr" href="https://zaloapp.com/qr/p/9cbgsv2pmnqv" target="_blank" rel="noopener" title="Mở Zalo Thi Lý Liêm"><img src="images/qr-zalo-lyliem.jpg" alt="Mã QR Zalo Thi Lý Liêm" loading="lazy"></a>
+        <div class="svc-body">
+          <span class="svc-tag mono">IN 3D</span>
+          <h3>Thiết kế và in 3D theo yêu cầu</h3>
+          <p class="svc-name"><i class="fa-solid fa-user"></i> Thi Lý Liêm</p>
+          <p class="svc-desc">Nhận thiết kế mô hình và in 3D theo yêu cầu, như vỏ hộp cho mạch và robot.</p>
+          <a class="btn-solid cyan sm" href="https://zaloapp.com/qr/p/9cbgsv2pmnqv" target="_blank" rel="noopener"><i class="fa-solid fa-comment-dots"></i> Zalo 0393 978 891</a>
+        </div>
+      </article>
+      <article class="svc-card svc-stem">
+        <a class="svc-qr" href="https://zaloapp.com/qr/p/ethsxcdbl08z" target="_blank" rel="noopener" title="Mở Zalo Phi Trường"><img src="images/qr-zalo-phitruong.jpg" alt="Mã QR Zalo Phi Trường" loading="lazy"></a>
+        <div class="svc-body">
+          <span class="svc-tag mono">STEM</span>
+          <h3>Thiết kế và làm STEM KHKT theo yêu cầu</h3>
+          <p class="svc-name"><i class="fa-solid fa-user"></i> Phi Trường</p>
+          <p class="svc-desc">Nhận thiết kế và làm sản phẩm STEM, khoa học kỹ thuật theo yêu cầu.</p>
+          <a class="btn-solid orange sm" href="https://zaloapp.com/qr/p/ethsxcdbl08z" target="_blank" rel="noopener"><i class="fa-solid fa-comment-dots"></i> Nhắn Zalo Phi Trường</a>
+        </div>
+      </article>
     </div>
   </section>
 
   <!-- Products -->
-  <div class="container">
-    <h2 class="section-title"><i class="fa-solid fa-box-open"></i> Sản phẩm nổi bật</h2>
-    <div class="product-grid" id="productGrid"></div>
+  <div class="container shop" id="products">
+    <!-- Category sidebar (màn hình lớn) -->
+    <aside class="cat-sidebar" id="catSidebar">
+      <div class="cat-sidebar-head">Danh mục</div>
+      <div class="cat-bar" id="catBar"></div>
+    </aside>
+
+    <div class="shop-main">
+      <!-- Category dropdown (màn hình hẹp) -->
+      <div class="cat-drop-wrap" id="catDropWrap">
+        <label for="catSelect" class="cat-drop-label"><i class="fa-solid fa-bars"></i> Danh mục</label>
+        <select id="catSelect" class="cat-drop" aria-label="Chọn danh mục"></select>
+      </div>
+      <div class="shop-head">
+        <div>
+          <p class="eyebrow eyebrow-green">Kho hàng</p>
+          <h2 class="section-title">Sản phẩm nổi bật</h2>
+        </div>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
+    </div>
   </div>
+
+  <!-- Nhóm Zalo (chỉ hiện trên điện thoại, nằm dưới sản phẩm) -->
+  <section class="community-m" aria-label="Nhóm Zalo cộng đồng">
+    <p class="eyebrow eyebrow-green">Cộng đồng Zalo</p>
+    <h2 class="section-h">Quét mã hoặc bấm để vào nhóm</h2>
+    <div class="hero-qr hero-qr-m" aria-label="Nhóm Zalo cộng đồng">
+          <div class="qr-card">
+            <a href="https://zalo.me/g/ghwomx800" target="_blank" rel="noopener" class="qr-img" title="Tham gia nhóm RoBot5320XiaoZhi78AI"><img src="images/qr-nhom-robot5320.jpg" alt="Mã QR nhóm Zalo RoBot5320XiaoZhi78AI" loading="lazy"></a>
+            <b>RoBot5320XiaoZhi78AI</b>
+            <span>Cộng đồng Zalo</span>
+            <a class="btn-solid green sm" href="https://zalo.me/g/ghwomx800" target="_blank" rel="noopener"><i class="fa-solid fa-user-plus"></i> Tham gia nhóm</a>
+          </div>
+          <div class="qr-card">
+            <a href="https://zalo.me/g/scat77dgkbpfkjspylgc" target="_blank" rel="noopener" class="qr-img" title="Tham gia nhóm Hỗ Trợ RB5320XZ78AI"><img src="images/qr-nhom-hotro.jpg" alt="Mã QR nhóm Zalo Hỗ Trợ RB5320XZ78AI" loading="lazy"></a>
+            <b>Hỗ Trợ RB5320XZ78AI</b>
+            <span>Nhóm hỗ trợ kỹ thuật</span>
+            <a class="btn-solid cyan sm" href="https://zalo.me/g/scat77dgkbpfkjspylgc" target="_blank" rel="noopener"><i class="fa-solid fa-headset"></i> Tham gia nhóm</a>
+          </div>
+        </div>
+  </section>
+  </main>
 
   <!-- Footer -->
   <footer class="site-footer">
-<p><b>ViVi Solution Đà Nẵng</b> — Khái Tây 2, Ngũ Hành Sơn, TP. Đà Nẵng (Bên cạnh Gas Động Lực)</p>
-    <p>📞 0773372913 &nbsp;|&nbsp; ✉️ xuantung2521@gmail.com</p>
-    <p><a href="about.html">Giới thiệu ViVi Solution</a></p>
+    <div class="footer-grid">
+      <div>
+        <p class="eyebrow eyebrow-cyan">ViVi Solution</p>
+        <p><a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener"><b>ViVi Solution Đà Nẵng</b></a> — Linh kiện điện tử &amp; RoBot AI</p>
+        <p><a href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener"><i class="fa-solid fa-phone"></i> Zalo 0773 372 913</a> · <a href="mailto:xuantung2521@gmail.com">xuantung2521@gmail.com</a></p>
+      </div>
+      <div>
+        <p class="eyebrow eyebrow-green">Chi nhánh 1</p>
+        <p><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Kh%C3%A1i%20T%C3%A2y%202%2C%20Ng%C5%A9%20H%C3%A0nh%20S%C6%A1n%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> Khái Tây 2, Ngũ Hành Sơn, Đà Nẵng</a></p>
+        <p class="muted-sm">Bên cạnh Gas Động Lực</p>
+      </div>
+      <div>
+        <p class="eyebrow eyebrow-orange">Chi nhánh 2</p>
+        <p><a href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> K74-H36/09 Phan Thanh, P. Thanh Khê, TP. Đà Nẵng</a></p>
+      </div>
+    </div>
+    <p class="footer-bottom mono">© 2026 ViVi Solution · <a href="index.html">Cửa hàng</a> · <a href="https://robot5320-fw.netlify.app/" target="_blank" rel="noopener">Sơ đồ và Firmware</a> · <a href="index.html#dat-thiet-ke">Đặt thiết kế PCB · In 3D · STEM</a> · <a href="about.html">Giới thiệu</a></p>
   </footer>
 
   <!-- Product detail modal -->
@@ -128,7 +301,7 @@
   <!-- Cart drawer -->
   <div class="cart-drawer" id="cartDrawer">
     <header>
-      <h3>🛒 Giỏ hàng</h3>
+      <h3><i class="fa-solid fa-cart-shopping" style="color:var(--orange-fg)"></i> Giỏ hàng</h3>
       <button class="modal-close" id="cartClose">✕</button>
     </header>
     <div class="cart-items" id="cartItems"></div>

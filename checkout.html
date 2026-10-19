@@ -5,28 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
 <title>Thanh toán - ViVi Solution Đà Nẵng</title>
+  <meta name="theme-color" content="#ffffff">
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
-  <!-- Header -->
+  <div class="topbar">
+    <div class="topbar-in">
+      <div class="topbar-links">
+        <a href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener" title="Mở Zalo Xuân Tùng"><i class="fa-solid fa-phone"></i> Zalo 0773 372 913</a>
+        <a class="tl-green" href="mailto:xuantung2521@gmail.com">xuantung2521@gmail.com</a>
+        <a class="hide-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=Kh%C3%A1i%20T%C3%A2y%202%2C%20Ng%C5%A9%20H%C3%A0nh%20S%C6%A1n%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường Google Maps"><i class="fa-solid fa-location-dot"></i> CN1: Khái Tây 2, Ngũ Hành Sơn</a>
+        <a class="hide-sm" href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường Google Maps"><i class="fa-solid fa-location-dot"></i> CN2: K74-H36/09 Phan Thanh, Thanh Khê</a>
+      </div>
+      <div class="mode-switch" role="group" aria-label="Chế độ giao diện">
+        <button type="button" class="mode-btn mode-light" data-theme-set="light"><i class="fa-regular fa-sun"></i> Sáng</button>
+        <button type="button" class="mode-btn mode-dark" data-theme-set="dark"><i class="fa-regular fa-moon"></i> Tối</button>
+      </div>
+    </div>
+  </div>
+
   <header class="site-header">
     <div class="header-top">
-      <div class="brand" onclick="location.href='index.html'">
-        <img class="site-logo" src="logo.png" alt="ViVi Solution">
+      <div class="brand">
+        <a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook ViVi Solution"><img class="site-logo" src="logo.png" alt="ViVi Solution"></a>
         <div>
-<h1>VIVI SOLUTION ĐÀ NẴNG</h1>
-          <small>Thanh toán đơn hàng</small>
+          <h1><a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener" title="Facebook ViVi Solution">ViVi Solution</a></h1>
+          <small><a href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener" title="Chỉ đường tới Chi nhánh 2">Linh kiện điện tử · Đà Nẵng</a></small>
         </div>
       </div>
       <div class="header-actions">
-        <button class="icon-btn" onclick="location.href='index.html'"><i class="fa-solid fa-arrow-left"></i> Tiếp tục mua</button>
+        <a class="icon-btn" href="index.html"><i class="fa-solid fa-arrow-left"></i> <span class="lbl">Tiếp tục mua</span></a>
       </div>
     </div>
+    <div class="rb-stripe" aria-hidden="true"><i></i><i></i><i></i></div>
   </header>
 
   <div class="checkout-wrap">
-    <h2 style="margin-bottom:1.2rem;color:var(--primary)"><i class="fa-solid fa-credit-card"></i> Thanh toán đơn hàng</h2>
+    <div class="hero-card grid-paper">
+      <div class="hero-lines" aria-hidden="true"><i></i><i></i><i></i></div>
+      <p class="eyebrow eyebrow-orange">Thanh toán khi nhận hàng · Giao tận nơi</p>
+      <h2 class="section-h" style="font-size:clamp(1.6rem,3.4vw,2.25rem)">Thanh toán đơn hàng</h2>
+      <p class="section-sub" style="font-size:1rem;margin-top:.5rem">Điền thông tin giao hàng, cửa hàng sẽ gọi xác nhận trước khi gửi.</p>
+    </div>
     <div class="checkout-grid">
       <!-- Customer info -->
       <div class="checkout-card">
@@ -64,7 +86,7 @@
 <!-- Order summary -->
       <div class="checkout-card">
         <h3><i class="fa-solid fa-receipt"></i> Đơn hàng của bạn</h3>
-        <div id="guestNotice" style="display:none;background:#fff3e0;border:1px solid #ffcc80;border-radius:8px;padding:.6rem .8rem;margin-bottom:.8rem;font-size:.85rem;color:#7a4f01">
+        <div id="guestNotice" class="notice" style="display:none">
           👤 <b>Bạn đang đặt hàng như khách</b>. Có thể đặt ngay không cần đăng ký. Đăng ký/thành viên để được giảm thêm 5%!
         </div>
         <div class="order-summary">
@@ -83,17 +105,29 @@
         <button class="btn btn-accent" id="placeOrderBtn" style="width:100%;margin-top:1rem;flex:none">
           <i class="fa-solid fa-check"></i> Đặt hàng & thanh toán
         </button>
-        <p style="font-size:.8rem;color:var(--muted);margin-top:.6rem;text-align:center">
-          🚚 Miễn phí vận chuyển cho đơn hàng từ 500.000đ
-        </p>
+        <p class="ship-note"><i class="fa-solid fa-truck-fast"></i> Miễn phí vận chuyển cho đơn từ 500.000đ</p>
       </div>
     </div>
   </div>
 
   <footer class="site-footer">
-    <p><a href="about.html">Giới thiệu ViVi Solution</a></p>
-<p><b>ViVi Solution Đà Nẵng</b> — 123 Trần Hưng Đạo, Q. Hải Châu, TP. Đà Nẵng</p>
-    <p>📞 0773372913 &nbsp;|&nbsp; ✉️ xuantung2521@gmail.com</p>
+    <div class="footer-grid">
+      <div>
+        <p class="eyebrow eyebrow-cyan">ViVi Solution</p>
+        <p><a href="https://www.facebook.com/share/1CE6DoThAL/?mibextid=wwXIfr" target="_blank" rel="noopener"><b>ViVi Solution Đà Nẵng</b></a> — Linh kiện điện tử &amp; RoBot AI</p>
+        <p><a href="https://zaloapp.com/qr/p/1hof97l2fy7nu" target="_blank" rel="noopener"><i class="fa-solid fa-phone"></i> Zalo 0773 372 913</a> · <a href="mailto:xuantung2521@gmail.com">xuantung2521@gmail.com</a></p>
+      </div>
+      <div>
+        <p class="eyebrow eyebrow-green">Chi nhánh 1</p>
+        <p><a href="https://www.google.com/maps/dir/?api=1&amp;destination=Kh%C3%A1i%20T%C3%A2y%202%2C%20Ng%C5%A9%20H%C3%A0nh%20S%C6%A1n%2C%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> Khái Tây 2, Ngũ Hành Sơn, Đà Nẵng</a></p>
+        <p class="muted-sm">Bên cạnh Gas Động Lực</p>
+      </div>
+      <div>
+        <p class="eyebrow eyebrow-orange">Chi nhánh 2</p>
+        <p><a href="https://www.google.com/maps/dir/?api=1&amp;destination=K74-H36%2F09%20Phan%20Thanh%2C%20Ph%C6%B0%E1%BB%9Dng%20Thanh%20Kh%C3%AA%2C%20Th%C3%A0nh%20ph%E1%BB%91%20%C4%90%C3%A0%20N%E1%BA%B5ng" target="_blank" rel="noopener"><i class="fa-solid fa-location-dot"></i> K74-H36/09 Phan Thanh, P. Thanh Khê, TP. Đà Nẵng</a></p>
+      </div>
+    </div>
+    <p class="footer-bottom mono">© 2026 ViVi Solution · <a href="index.html">Cửa hàng</a> · <a href="https://robot5320-fw.netlify.app/" target="_blank" rel="noopener">Sơ đồ và Firmware</a> · <a href="index.html#dat-thiet-ke">Đặt thiết kế PCB · In 3D · STEM</a> · <a href="about.html">Giới thiệu</a></p>
   </footer>
 
   <!-- Success modal -->
@@ -101,7 +135,7 @@
     <div class="modal">
       <button class="modal-close" onclick="document.getElementById('successModal').classList.remove('show')">✕</button>
       <div style="text-align:center;padding:1rem">
-        <div style="font-size:4rem">✅</div>
+        <div class="success-icon"><i class="fa-solid fa-check"></i></div>
         <h2>Đặt hàng thành công!</h2>
         <p id="successMsg" style="color:var(--muted);margin:.8rem 0"></p>
         <button class="btn btn-primary" onclick="location.href='index.html'" style="width:100%">Quay lại cửa hàng</button>

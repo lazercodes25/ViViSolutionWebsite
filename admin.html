@@ -5,34 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
 <title>Quản trị - ViVi Solution Đà Nẵng</title>
+  <meta name="theme-color" content="#ffffff">
+  <script src="js/theme.js"></script>
   <link rel="stylesheet" href="css/admin.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-in">
+      <div class="topbar-links">
+        <span>Trang quản trị nội bộ</span>
+        <span class="hide-sm">Kho hàng · Đơn hàng · Banner</span>
+      </div>
+      <div class="mode-switch" role="group" aria-label="Chế độ giao diện">
+        <button type="button" class="mode-btn mode-light" data-theme-set="light"><i class="fa-regular fa-sun"></i> Sáng</button>
+        <button type="button" class="mode-btn mode-dark" data-theme-set="dark"><i class="fa-regular fa-moon"></i> Tối</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Admin header -->
   <header class="admin-header">
-    <div class="brand">
-      <img class="admin-logo" src="logo.png" alt="ViVi Solution">
-      <div>
-<h1>QUẢN TRỊ — VIVI SOLUTION ĐÀ NẴNG</h1>
-      </div>
-    </div>
-    <div class="group" style="display:flex;gap:.5rem;align-items:center">
-      <div class="account-menu">
-        <button class="account-toggle" id="accountToggle" style="display:none">
-          <span id="adminUserLabel"></span>
-          <i class="fa-solid fa-chevron-down" style="font-size:.7rem"></i>
-        </button>
-        <div class="account-dropdown" id="accountDropdown">
-          <a href="javascript:void(0)" id="changePassBtn"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
-          <a href="javascript:void(0)" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+    <div class="admin-header-in">
+      <div class="brand">
+        <img class="admin-logo" src="logo.png" alt="ViVi Solution">
+        <div>
+          <h1>ViVi Solution · Quản trị</h1>
+          <small>Kho hàng &amp; đơn hàng</small>
         </div>
       </div>
-      <a href="index.html"><i class="fa-solid fa-store"></i> Cửa hàng</a>
+      <div class="group">
+        <div class="account-menu">
+          <button class="account-toggle" id="accountToggle" style="display:none">
+            <i class="fa-solid fa-user-shield"></i>
+            <span id="adminUserLabel"></span>
+            <i class="fa-solid fa-chevron-down" style="font-size:.7rem"></i>
+          </button>
+          <div class="account-dropdown" id="accountDropdown">
+            <a href="javascript:void(0)" id="changePassBtn"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+            <a href="javascript:void(0)" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Đăng xuất</a>
+          </div>
+        </div>
+        <a class="hdr-link" href="index.html"><i class="fa-solid fa-store"></i> Cửa hàng</a>
+      </div>
     </div>
+    <div class="rb-stripe" aria-hidden="true"><i></i><i></i><i></i></div>
   </header>
 
   <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow eyebrow-orange">Bảng điều khiển</p>
+      <h2>Quản lý kho hàng</h2>
+    </div>
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card"><i class="fa-solid fa-box"></i><div><b id="statCount">0</b><span>Sản phẩm</span></div></div>
@@ -52,7 +77,7 @@
         <button class="abtn abtn-ghost" id="btnReset"><i class="fa-solid fa-rotate-left"></i> Mặc định</button>
       </div>
 <div class="group">
-        <button class="abtn abtn-danger" id="btnOrders"><i class="fa-solid fa-truck"></i> Đơn hàng <span id="orderBadge" style="background:#fff;color:#d32f2f;border-radius:10px;padding:0 .4rem;font-weight:800"></span></button>
+        <button class="abtn abtn-danger" id="btnOrders"><i class="fa-solid fa-truck"></i> Đơn hàng <span id="orderBadge" class="count-badge"></span></button>
         <button class="abtn abtn-success" id="btnImport"><i class="fa-solid fa-file-import"></i> Nhập CSV/Excel</button>
         <button class="abtn abtn-accent" id="btnExportXlsx"><i class="fa-solid fa-file-excel"></i> Xuất Excel</button>
         <button class="abtn abtn-ghost" id="btnExportCsv"><i class="fa-solid fa-file-csv"></i> Xuất CSV</button>
@@ -62,7 +87,7 @@
     </div>
 
     <!-- Hint -->
-    <div style="background:#fdf3dc;border:1px solid #f0d8a8;border-radius:10px;padding:.7rem 1rem;margin-bottom:1rem;font-size:.88rem;color:#7a5b1e">
+    <div class="hint">
       💡 <b>Mẹo:</b> Nhấp <b>đúp chuột</b> vào ô để sửa trực tiếp (giống Excel). Xuất Excel để sao lưu, nhập file để mở rộng danh sách hàng.
     </div>
 
@@ -107,8 +132,12 @@
             <select id="f-category"></select>
           </div>
           <div class="form-group">
-            <label>Giá (VNĐ)</label>
+            <label>Giá bán (VNĐ)</label>
             <input type="number" id="f-price" placeholder="100000">
+          </div>
+          <div class="form-group">
+            <label>Giá gốc — gạch ngang (VNĐ)</label>
+            <input type="number" id="f-oldprice" placeholder="VD: 1532000 (để trống nếu không giảm)" min="0">
           </div>
           <div class="form-group">
             <label>Tồn kho (số lượng)</label>
@@ -127,7 +156,7 @@
             <div class="drop-area img-drop" id="imgDropArea">
               <i class="fa-solid fa-cloud-arrow-up"></i>
               <b>Kéo & thả ảnh vào đây</b> hoặc nhấp để chọn ảnh
-              <div style="font-size:.8rem;color:#8a94a6;margin-top:.2rem">Hỗ trợ .png, .jpg, .jpeg, .gif, .webp — chọn được nhiều ảnh</div>
+              <div style="font-size:.8rem;color:var(--muted);margin-top:.2rem">Hỗ trợ .png, .jpg, .jpeg, .gif, .webp — chọn được nhiều ảnh</div>
             </div>
             <input type="file" id="f-image-input" accept="image/png,image/jpeg,image/gif,image/webp,image/jpg" multiple style="display:none">
             <div class="img-preview" id="imgPreview"></div>
@@ -137,12 +166,12 @@
             <textarea id="f-desc" rows="2" placeholder="Mô tả sản phẩm..."></textarea>
           </div>
           <div class="form-group full">
-            <label>Tùy chọn sản phẩm (VD: trở dán: 10Ω, 100Ω, 1kΩ — mỗi loại có giá & tồn kho riêng)</label>
+            <label>Tùy chọn sản phẩm (VD: màn 1.54 inch / 2.8 inch — mỗi loại có giá bán, giá gốc gạch ngang & tồn kho riêng)</label>
             <div id="optEditor" class="opt-editor"></div>
             <button type="button" class="abtn abtn-ghost abtn-sm" id="optAddBtn" style="margin-top:.4rem">
               <i class="fa-solid fa-plus"></i> Thêm tùy chọn
             </button>
-            <div style="font-size:.8rem;color:#8a94a6;margin-top:.3rem">Để trống nếu sản phẩm không có tùy chọn (chỉ 1 mức giá/tồn kho chính).</div>
+            <div style="font-size:.8rem;color:var(--muted);margin-top:.3rem">Để trống nếu sản phẩm không có tùy chọn (chỉ 1 mức giá/tồn kho chính).</div>
           </div>
         </div>
       </form>
@@ -157,7 +186,7 @@
   <div class="modal-overlay" id="importModal">
     <div class="modal">
       <h2><i class="fa-solid fa-file-import"></i> Nhập danh sách hàng</h2>
-      <p style="font-size:.9rem;color:#6b7688">Chọn file <b>Excel (.xlsx/.xls)</b> hoặc <b>CSV</b>. Các sản phẩm sẽ được thêm vào danh sách hiện tại.</p>
+      <p style="font-size:.9rem;color:var(--muted)">Chọn file <b>Excel (.xlsx/.xls)</b> hoặc <b>CSV</b>. Các sản phẩm sẽ được thêm vào danh sách hiện tại.</p>
       <div style="margin:1rem 0">
         <div class="drop-area" id="dropArea">
           <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -227,7 +256,7 @@
     <div class="modal">
       <button class="modal-close" id="bannerClose">✕</button>
       <h2><i class="fa-solid fa-images"></i> Quản lý banner quảng cáo</h2>
-      <p style="font-size:.85rem;color:#6b7688;margin-bottom:1rem">
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:1rem">
         Banner hiển thị trên trang chủ (tự động xoay vòng). Thêm ảnh hoặc dán URL hình ảnh.
       </p>
       <div class="banner-editor">

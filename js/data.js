@@ -2,6 +2,11 @@
 
 // Categories
 const CATEGORIES = [
+  "Compo Tự lắp",
+  "Robot hoàn thiện",
+  "XiaoZhi78 AI",
+  "Vỏ in 3D",
+  "Mạch PCB",
   "Vi xử lý",
   "Bo mạch",
   "Cảm biến",
@@ -180,10 +185,10 @@ function getProductOptions(p) {
     return p.options.map(o =>
       typeof o === "string"
         ? { label: o, price: p.price || 0, stock: p.stock || 0 }
-        : { label: o.label || "Mặc định", price: Number(o.price) || p.price || 0, stock: Number(o.stock) >= 0 ? Number(o.stock) : (p.stock || 0) }
+        : { label: o.label || "Mặc định", price: Number(o.price) || p.price || 0, stock: Number(o.stock) >= 0 ? Number(o.stock) : (p.stock || 0), oldPrice: Number(o.oldPrice) || 0 }
     );
   }
-  return [{ label: "Mặc định", price: p.price || 0, stock: p.stock || 0 }];
+  return [{ label: "Mặc định", price: p.price || 0, stock: p.stock || 0, oldPrice: Number(p.oldPrice) || 0 }];
 }
 
 // Lấy giá theo option; nếu option không ghi đè giá thì dùng giá sản phẩm.
@@ -196,6 +201,21 @@ function optionPrice(p, opt) {
 function optionStock(p, opt) {
   if (opt && typeof opt.stock === "number" && opt.stock >= 0) return Number(opt.stock);
   return Number(p.stock) || 0;
+}
+
+// Giá gốc (gạch ngang) theo option; nếu option không có thì dùng giá gốc của sản phẩm.
+// Chỉ trả về khi lớn hơn giá bán, ngược lại trả 0 (không hiển thị).
+function optionOldPrice(p, opt) {
+  const price = optionPrice(p, opt);
+  const own = opt && Number(opt.oldPrice) > 0 ? Number(opt.oldPrice) : 0;
+  const old = own || Number(p && p.oldPrice) || 0;
+  return old > price ? old : 0;
+}
+
+// % giảm giá làm tròn (VD: 1.532.000 -> 880.000 = 43%)
+function discountPercent(old, price) {
+  if (!old || !price || old <= price) return 0;
+  return Math.round((1 - price / old) * 100);
 }
 
 // Lấy tên hiển thị của option.
@@ -285,17 +305,17 @@ function loadSheetJS() {
 async function exportProducts(format = "xlsx") {
   const products = getProducts();
   const wsData = [
-    ["Mã SP", "Tên sản phẩm", "Danh mục", "Giá (VNĐ)", "Tồn kho", "Đơn vị", "Mô tả", "Đánh giá"]
+    ["Mã SP", "Tên sản phẩm", "Danh mục", "Giá (VNĐ)", "Giá gốc (gạch ngang)", "Tồn kho", "Đơn vị", "Mô tả", "Đánh giá"]
   ];
 products.forEach(p => {
     wsData.push([
-      p.id, p.name, p.category, p.price, p.stock, p.unit, p.desc, p.rating
+      p.id, p.name, p.category, p.price, p.oldPrice || "", p.stock, p.unit, p.desc, p.rating
     ]);
   });
   const ws = SheetJS.utils.aoa_to_sheet(wsData);
   // Column widths for readability
   ws["!cols"] = [
-    { wch: 8 }, { wch: 32 }, { wch: 20 }, { wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 40 }, { wch: 10 }
+    { wch: 8 }, { wch: 32 }, { wch: 20 }, { wch: 14 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 40 }, { wch: 10 }
   ];
   const wb = SheetJS.utils.book_new();
   SheetJS.utils.book_append_sheet(wb, ws, "SanPham");
@@ -334,13 +354,16 @@ function rowsToProducts(rows) {
   const headers = headerIdx >= 0 ? rows[headerIdx].map(h => headerNorm(h)) : [];
 
   const colMap = {
-    id: -1, name: -1, category: -1, price: -1, stock: -1, unit: -1, desc: -1, image: -1, rating: -1
+    id: -1, name: -1, category: -1, price: -1, oldPrice: -1, stock: -1, unit: -1, desc: -1, image: -1, rating: -1
   };
   headers.forEach((h, idx) => {
     if (h.includes("ma") || h.includes("id")) colMap.id = idx;
     if (h.includes("ten") || h.includes("name")) colMap.name = idx;
     if (h.includes("danh muc") || h.includes("category") || h.includes("loai")) colMap.category = idx;
-    if (h.includes("gia") || h.includes("price")) colMap.price = idx;
+    const isRating = h.includes("danh gia") || h.includes("rating");
+    const isOld = h.includes("gia goc") || h.includes("gach") || h.includes("old") || h.includes("compare");
+    if (isOld && !isRating) colMap.oldPrice = idx;
+    else if ((h.includes("gia") || h.includes("price")) && !isRating && colMap.price < 0) colMap.price = idx;
     if (h.includes("ton") || h.includes("stock") || h.includes("sl")) colMap.stock = idx;
     if (h.includes("don vi") || h.includes("unit")) colMap.unit = idx;
     if (h.includes("mo ta") || h.includes("desc")) colMap.desc = idx;
@@ -363,6 +386,7 @@ function rowsToProducts(rows) {
     while (existing.some(p => Number(p.id) === Number(id)) || products.some(p => Number(p.id) === Number(id))) id++;
 
     const price = colMap.price >= 0 ? Number(String(row[colMap.price]).replace(/[^\d]/g, "")) || 0 : 0;
+    const oldPrice = colMap.oldPrice >= 0 ? Number(String(row[colMap.oldPrice]).replace(/[^\d]/g, "")) || 0 : 0;
     const stock = colMap.stock >= 0 ? Number(String(row[colMap.stock]).replace(/[^\d]/g, "")) || 0 : 0;
     const rating = colMap.rating >= 0 ? Number(row[colMap.rating]) || 4.5 : 4.5;
     const rawImages = colMap.image >= 0 && row[colMap.image] !== "" && row[colMap.image] != null
@@ -381,6 +405,7 @@ function rowsToProducts(rows) {
       name,
       category: colMap.category >= 0 ? String(row[colMap.category] || "Linh kiện thụ động").trim() : "Linh kiện thụ động",
       price,
+      ...(oldPrice > price ? { oldPrice } : {}),
       stock,
       unit: colMap.unit >= 0 ? String(row[colMap.unit] || "cái").trim() : "cái",
       desc: colMap.desc >= 0 ? String(row[colMap.desc] || "").trim() : "",
